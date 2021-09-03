@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE database SYSTEM 'xmlschemas/domino_12_0.dtd'>
+
+<!--
+ Copyright 2021 HCL America, Inc.
+
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<database xmlns='http://www.lotus.com/dxl' version='12.0' replicaid='0025870B003BB243'
+ path='CN=mercury/O=NotesLab!!dominobackup.nsf' title='Domino Backup' fromtemplate='StdDominoBackup'
+ allowbackgroundagents='false' increasemaxfields='true' copyprofiledocswithdesign='true'
+ advancedtemplate='true' uselz1='true'>
+<databaseinfo dbid='0025870B003BB243' odsversion='55' diskspace='3670016'
+ percentused='68.8755580357143' numberofdocuments='122'><datamodified><datetime
+>20210723T132133,39+00</datetime></datamodified><designmodified><datetime
+>20210811T045439,79+00</datetime></designmodified></databaseinfo>
+<launchsettings><noteslaunch whenopened='openframeset' frameset='MainFrameset'/></launchsettings>
+<document form='ServerConfig'>
+<noteinfo noteid='aba' unid='9E7F56EC5DA94CE00025870C00284D62' sequence='5'>
+<created><datetime>20210708T072012,50+00</datetime></created>
+<modified><datetime>20210708T110950,21+00</datetime></modified>
+<revised><datetime>20210708T110950,20+00</datetime></revised>
+<lastaccessed><datetime>20210708T110950,20+00</datetime></lastaccessed>
+<addedtofile><datetime>20210708T072012,52+00</datetime></addedtofile></noteinfo>
+<revisions><datetime>20210708T072012,52+00</datetime><datetime>20210708T072020,49+00</datetime><datetime
+>20210708T072409,06+00</datetime><datetime>20210708T075102,35+00</datetime></revisions>
+<item name='ConfigName'><text/></item>
+<item name='Platform'><text>LINUX</text></item>
+<item name='ServerName' names='true'><text/></item>
+<item name='NodeName'><text/></item>
+<item name='ExcludedDatabases'><text>nshsmtp\*</text></item>
+<item name='BackupRetentionDays'><number>7</number></item>
+<item name='Description'><text>Veeam for Linux</text></item>
+<item name='Comments'><richtext>
+<pardef id='1' leftmargin='0' tabs='L2.1250in' keepwithnext='true' keeptogether='true'/>
+<par def='1'><run><font size='9pt' name='Helvetica Neue' pitch='variable'
+ truetype='false' familyid='20'/></run></par></richtext></item>
+<item name='BackupDbCommand_Type'><text>fFILE</text></item>
+<item name='BackupTranslogCommand_Type'><text>sCMD</text></item>
+<item name='BackupPreCommand_Type'><text/></item>
+<item name='BackupPostCommand_Type'><text>sCMD</text></item>
+<item name='BackupDisableDirectApply'><text/></item>
+<item name='BackupLog'><text>3</text></item>
+<item name='BackupOkString'><text>Return: PROCESSED</text></item>
+<item name='BackupErrString'><text/></item>
+<item name='BackupSnapshotMode'><text>1</text></item>
+<item name='BackupSnapshotStartCommand_Type'><text>sCMD</text></item>
+<item name='BackupSnapshotCommand_Type'><text>sCMD</text></item>
+<item name='BackupSnapshotFileList'><text/></item>
+<item name='SnapshotStartOkString'><text>Return: PROCESSED</text></item>
+<item name='SnapshotStartErrString'><text>Return: ERROR</text></item>
+<item name='SnapshotOkString'><text/></item>
+<item name='SnapshotErrString'><text>Return: ERROR</text></item>
+<item name='RestoreDbCommand_Type'><text>sCMD</text></item>
+<item name='RestoreTranslogCommand_Type'><text>sCMD</text></item>
+<item name='RestoreSnapshotCommand_Type'><text>sCMD</text></item>
+<item name='RestoreOkString'><text>PROCESSED</text></item>
+<item name='RestoreErrString'><text/></item>
+<item name='RestoreDaosCommand_Type'><text/></item>
+<item name='RestoreDaosSingleFile'><text/></item>
+<item name='PruneBackupCommand_Type'><text>sCMD</text></item>
+<item name='PruneDbCommand_Type'><text/></item>
+<item name='PruneTranslogCommand_Type'><text>sCMD</text></item>
+<item name='PruneSnapshotCommand_Type'><text>sCMD</text></item>
+<item name='PruneOkString'><text/></item>
+<item name='PruneErrString'><text/></item>
+<item name='BackupNotificationFormula'><text>"LocalDomainAdmins"</text></item>
+<item name='BackupStatusFormula'><text/></item>
+<item name='NotificationFrom' names='true'><text/></item>
+<item name='NotificationInetFrom' names='true'><text/></item>
+<item name='BackupReportAgentFormula'><text/></item>
+<item name='BackupResultString'><text>Return:</text></item>
+<item name='BackupRefString'><text>BackupRef:</text></item>
+<item name='NotificationForm'><text/></item>
+<item name='NotificationFormTranslog'><text/></item>
+<item name='DbTitleFormula'><text>{Restored - } + Title</text></item>
+<item name='BackupKeepEmptyDeltaFiles'><text/></item>
+<item name='ThirdPartyRestoreDateFormula'><text/></item>
+<item name='Body'><richtext>
+<pardef id='2' tabs='L2.1250in'/>
+<par def='2'><run><font size='8pt'/></run></par></richtext></item>
+<item name='Status'><text>1</text></item>
+<item name='ConfigType'><text>D</text></item>
+<item name='BackupTargetDirDb'><text>/local/backup/nsf</text></item>
+<item name='BackupTargetDirTranslog'><text>/local/backup/translog</text></item>
+<item name='BackupLogDir'><text>/local/backup/log</text></item>
+<item name='ScriptDir'><text>/opt/hcl/domino/backup/veeam</text></item>
+<item name='BackupTargetDirFile'><text/></item>
+<item name='BackupTargetDelta'><text/></item>
+<item name='BackupDbCommand'><text>BackupTargetDir + {/} + BackupNode + {/} + BackupMode + {/} + BackupDateTime + {/} + FileName</text></item>
+<item name='BackupTranslogCommand'><text>backup_translog.sh</text></item>
+<item name='BackupPreCommand'><text/></item>
+<item name='BackupPostCommand'><text>backup_post.sh</text></item>
+<item name='BackupSnapshotStartCommand'><text>backup_snapshot_start.sh</text></item>
+<item name='BackupSnapshotCommand'><text>backup_snapshot.sh</text></item>
+<item name='RestoreDbCommand'><text>restore_db.sh</text></item>
+<item name='RestoreTranslogCommand'><text>restore_translog.sh</text></item>
+<item name='RestoreSnapshotCommand'><text>restore_db.sh</text></item>
+<item name='RestoreDaosCommand'><text/></item>
+<item name='BackupTargetDirDaos'><text/></item>
+<item name='PruneBackupCommand'><text/></item>
+<item name='PruneDbCommand'><text/></item>
+<item name='PruneTranslogCommand'><text/></item>
+<item name='PruneSnapshotCommand'><text/></item>
+<item name='NotificationLevel'><textlist><text>E</text><text>W</text></textlist></item>
+<item name='NotificationAppendDoc'><text/></item></document>
+</database>
+

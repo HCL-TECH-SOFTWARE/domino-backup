@@ -1,3 +1,0 @@
-Domino Backup Integration
-
-Introduction  
