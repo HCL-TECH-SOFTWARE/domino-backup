@@ -1,8 +1,8 @@
 ---
 layout: default
-title: Backup to file system 
+title: Backup Backends 
 nav_order: 2
-description: "HCL Domino Backup to a file system"
+description: "HCL Domino Backup Backends"
 has_children: false
 ---
 
@@ -83,24 +83,24 @@ This means you can use a two step approach when enabling database storage settin
 - Enable the setting via `compact` task as shown above
 - Run `dbmt` which always compacts the database in copy style mode to compress or move data
 
-DBMT comes with another advantage. It calculates the new databases size and pre-allocates the new database file in one step.  
-This gives the file-system the opportunity to optimize disk alignment. After a DBMT compact the database is defragmented on file-system level as well.
+DBMT comes with another advantage. It calculates the new databases size and pre-allocates the new database file in one step.
+This gives the file-system the opportunity to optimize disk alignment. This means DBMT compact also ensures an aligned disk allocation with a few number of fragments.
 
 ### Run compact once per week before the backup
 
 Specially in combination with archive style transaction log compacts should only performed if needed.  
 Each compact will change the `DBIID` of a database and requires a new backup of the database.
 
-But also when using compression and deduplication for backup compacting too often, causes a lot of backup storage overhead.
+But also when using compression and deduplication on the backup target causes dramatic overhead when databases are compacted often.
 
 ## Special considerations for snapshot backups
 
 Separate the NSF data to backup from the remaining part of the server data to a different volume to keep the snapshot small.
 
-The following parts should be separated from the NSF data.  
+The following parts should be separated from the NSF data.
 On larger servers it usually makes sense to store each of them separately from each other on different disks.
 
-Translog and logs often are stored on the system disk to avoid too many separate disks.
+Translog and logs often are stored on the system disk if sufficient space is available.
 
 - Transaction log
 - DAOS
@@ -123,7 +123,7 @@ In general there are two different types of transaction log modes.
   Mainly intended for database consistency and performance.
   With only a very limited option to restore point in time
   
-- ** Archive style**
+- **Archive style**
   Using the archive style transaction log allows true point in time recovers but adds complexity to your backup infrastructure.
   Translog extends ( `*.txn` files ) have to be backed up by the backup application in time.
   And the backup application has to restore `txn` files when requested by the backup API in a restore operation on demand.
@@ -136,14 +136,15 @@ Domino comes with full integrated archive functionality build into every databas
 For mail databases archiving can even be implemented leveraging policies.  
 This includes home server groups to assign archive server targets.
 
-Having a larger archive copy and a smaller live database if beneficial for performance and backup optimization.
+Having a larger archive copy and a smaller live database is very beneficial for performance and backup optimization.
 
 A server based monthly archive also reduces the need for weekly or daily backups on archive servers.
 
 ### Archive DAOS support
 
-When creating an archive an archive database is not automatically DAOS enabled. You have to specify the `-DAOS ON` option explicitly.
+Note: When creating an archive an archive database is not automatically DAOS enabled. You have to specify the `-DAOS ON` option explicitly.
 
 ```
 load compact -a -DAOS ON
 ```
+
