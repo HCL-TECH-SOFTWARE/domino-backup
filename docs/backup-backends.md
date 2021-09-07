@@ -24,10 +24,11 @@ One very interesting applicance which can run on also on existing infrastucture 
 The platform uses OpenZFS as the base with all the storage optimization benefits.
 
 Deduplication and compression allows a simple backup approach without duplicating the NSF storage every night.  
-But special care needs to be taking to for Domino storage optimization.
+But special care needs to be taken for Domino storage optimization.  
+If you are compacting databases to often too much data is changed, which will make deduplication less effective.
 
 One of the advantages file backup integrations is that delta files created during backup, can be automatically applied to the databases.
-And the resulting backup is consistent on it's own -- without the need of a restore operation.
+The resulting backup is consistent on it's own -- without the need of a restore operation.
 
 # Domino storage optimization first
 
@@ -49,18 +50,20 @@ load compact -n -v
 
 ## Domino Attachment Object Serivce ( DAOS )
 
-DAOS allows you to move attachments out of the NSF files. This have multiple advanges also from backup point of view.
+DAOS allows you to move attachments out of the NSF files. This has multiple advanges also from backup point of view.
 
-- Reduce the size of the NSF file dramatically.
-  Up to 70% of a mail database can be moved to DAOS.
-  This would reduce the requiremends for NSF backup by the same amount
+- Reduce the size of the NSF file dramatically.  
+  Up to **70%** of a mail database can be moved to DAOS. 
+  This would reduce the requiremends for NSF backup by the same amount.
 
-- DAOS creates a hash of the attachment object. Multiple attachments with the same hash are deduplicated -- which leads to 30-40% storage reduction in most environments.
+- DAOS creates a hash of the attachment object. Multiple attachments with the same hash are deduplicated -- which leads to **30-40%** storage reduction in most environments for attachment data stored in DAOS.
 
-- DAOS files don't need a Domino backup agent for backup. Any backup solution can backup DAOS files on-line. They are written once and only read afterwards.
+- DAOS files don't need a Domino backup agent for backup. Any backup solution can backup DAOS files on-line. They are written once and only read afterwards. This allows an incremental backup of the DAOS data.
 
-- The newer DAOS T2 offers additional optimization and since Domino V12 also allows deduplication for data from multiple servers. However DAOS T2 brings new challenges for synchronizing backups and restore operations.  
-DAOS T2 can be used to move older attachment data to less expensive storage.
+- Note: DAOS T2 offers additional optimization moving older attachment data to less expensive storage leveraging the S3 standard.  
+Beginning with Domino V12 DAOS T2 also allows deduplication for data from multiple servers. 
+However DAOS T2 brings new challenges for synchronizing backups and restore operations.  
+
 
 ```
 load compact -DAOS ON

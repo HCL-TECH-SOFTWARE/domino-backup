@@ -10,7 +10,7 @@ has_children: false
 
 ## Introduction
 
-`Snapshot technology` is a modern and very powerful concept in current backup solutions.  
+**Snapshot technology** is a modern and very powerful concept in current backup solutions.  
 The term can stand for different types of methods depending on the platform and storage used.  
 
 Usually snapshots alone are **not** a backup solution or a way to keep backup data stored.  
@@ -26,7 +26,7 @@ Therefore it is essential to
 
 ## Types of snapshots
 
-Snapshots are implemented on different levels, which results in different types of backup approaches they can be used for.  
+Snapshots are implemented on different levels, which results in different types of backup approaches.  
 
 ### File system snapshots
 
@@ -34,7 +34,7 @@ File system snapshots are available for different type of file systems on Window
 On Windows Volume Shadow Copy ( VSS ) is built into the out of the box file system NTFS already.  
 For Linux the standard file systems don't support snapshots. But the available file systems are very powerful and reliable and offer more than just the snapshot capability.
 
-#### Windows Volume Shadow Copy ( VSS )
+### Windows Volume Shadow Copy ( VSS )
 
 The VSS technology is build into Windows and the file-system. It is mainly intended to create an application consistent snapshot for backup.  
 Keeping VSS snapshots for a longer time can cause performance impact and should be avoided.  
@@ -49,7 +49,7 @@ But in combination with Domino Backup VSS can still be leveraged for backup usin
 
 1. Bring all databases into backup mode
 2. Create a VSS snapshot
-3. Get all databases back into normal operation mode and collect potential delta data in *.DELTA files stored separately
+3. Get all databases back into normal operation mode and collect potential delta data in ***.DELTA** files stored separately
 4. Let a backup application backup the snapshot ( e.g. mount the snapshot read-only and backup the consistent state )
 5. Release the snapshot
 
@@ -58,37 +58,42 @@ This allows a very short time window for backup and the application taking care 
 
 For more details check the official Microsoft documentation for [Microsoft VSS](https://docs.microsoft.com/en-us/windows-server/storage/file-server/volume-shadow-copy-service)
 
-#### Diskshadow utility to create VSS snapshots
+### Diskshadow utility to create VSS snapshots
 
 All supported Windows server versions ship with the VSS command-line tool to create and manage snapshots.  
 Domino Backup leverages [diskshadow.exe](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/diskshadow) instead of implementing and own solution and benefits in all functionality out of the box.
 
-#### Linux File system snapshot using LVM
+### Linux File system snapshot using LVM
 
 The most commonly used file systems like [ext4](https://en.wikipedia.org/wiki/Ext4), [XFS](https://en.wikipedia.org/wiki/XFS) are not snapshot aware on it self. But Linux [LVM](https://en.wikipedia.org/wiki/Logical_Volume_Manager_(Linux) can be used to create snapshot.  
 
 This is not a commonly used technology and bares some risk and complexity.  
 For Linux snapshots one of the following file system with build-in snapshot support is highly recommended.
 
-#### Linux btrfs file system snapshots
+### Linux btrfs file system snapshots
 
 [btrfs](https://btrfs.wiki.kernel.org) is one of the newer file-systems, which is not included in all Linux distibutions. All SUSE distributions include it and also leverage it for root file systems.
 
 In addition to snapshots btrfs also supports compression and data deduplication.  
 
-#### Linux OpenZFS file system snapshots
+### Linux OpenZFS file system snapshots
 
-[OpenZFS](https://openzfs.github.io/openzfs-docs/index.htm) has been around for quite a while. It was introduced introduced in Sun Solaris first and has been later ported to Linux, FreeBSD and other platforms. 
+[OpenZFS](https://openzfs.github.io/openzfs-docs/index.htm) has been around for quite a while. ZFS was introduced introduced in Sun Solaris first and has been later ported to Linux, FreeBSD and other platforms in the OpenZFS project. 
 
-OpenZFS 2.0 has been a major shift to align OpenZFS on FreeBSD and other platforms. Also OpenZFS 2.0 has introduced many advanced features and tuning options.
+OpenZFS 2.0 has been a major shift to align OpenZFS on FreeBSD and other platforms. OpenZFS 2.0 introduced many advanced features and tuning options.
 
-OpenZFS is a completely different concept than other file-systems and it installed and operated with own tools (zpool and zfs). See the[OpenZFS presentation](https://papers.freebsd.org/2020/linux.conf.au/paeps_the_zfs_filesystem/) details.
+OpenZFS is a completely different concept than other file-systems. It is installed and operated with own tools (zpool and zfs). See the [OpenZFS presentation](https://papers.freebsd.org/2020/linux.conf.au/paeps_the_zfs_filesystem/) details.
 
-Most widely used Linux distributions used with Domino still do not include OpenZFS out of the box. But it can be installed from their official repository for Domino supported Linux platforms.
+Most widely used Linux distributions still do not include OpenZFS out of the box. But it can be installed from their official repository for Domino supported Linux platforms.
 
 ### VM level snapshots
 
-Modern virtualization platforms like VMware, Microsoft Hyper-V, KVM, Proxmox and others support VM level snapshots. Those snapshots are usually initiated by backup vendors to backup data to their own backup repositories. Keeping VM snapshots for a longer time for Domino databases can increase the storage footprint and performance dramatically.
+Modern virtualization platforms like 
+[VMware vSphere](https://www.vmware.com/products/vsphere.html), 
+[Microsoft Hyper-V](https://docs.microsoft.com/en-us/windows-server/virtualization/hyper-v/hyper-v-technology-overview), 
+[KVM](https://www.linux-kvm.org), 
+[Proxmox VE](https://www.proxmox.com/en/proxmox-ve) 
+and others support VM level snapshots. Those snapshots are usually initiated by backup vendors to backup data to their own backup repositories. Keeping VM snapshots for a longer time for Domino databases can increase the storage footprint and performance dramatically.
 
 VM snapshots without application aware processing to bring all databases into backup mode would only be crash consistent -- even the snapshot usually takes a very short time.
 
@@ -100,26 +105,27 @@ Modern storage appliances like NetApp support snapshots also on storage level an
 
 In the same way VM snapshots would only provide crash consistent snapshots the underlying storage infrastructure would provide snapshots on the same level.
 
+
 ## Backup provider snapshot support
 
 Modern Backup applications like [Veeam Backup & Replication](https://www.veeam.com/vm-backup-recovery-replication-software.html), [IBM Spectrum protect](https://www.ibm.com/products/data-protection-and-recovery) and others can leverage snapshot technology for their backups, but require application aware processing to allow consistent Domino backups.
 
-There is not a one solution fits all approach when it comes to snapshot backups.  
+There is not a "one solution fits all approach" when it comes to snapshot backups.  
 A snapshot backup implementation always needs integration between the involved components.
 
 ## Domino Backup snapshot support
 
 Given the different types of snapshot implementation, Domino Backup implements a very flexible snapshot interface, which can be adopted for different snapshot solution needs.
 
-But due to the nature of those different snapshot technologies used, this requires integration scripting for each of the different technologies used.
+Due to the nature of those different snapshot technologies used, this requires integration scripting for each of the different technologies used.
 
-Backup and restore flows would like outlined below.
+A typical flow for a snapshot backup and restore would look like the following schema:
 
 ### Snapshot backup flow
 
-1. Bring all databases into backup mode
+1. Bring all databases into backup mode leveraging the Domino Backup C-API
 2. Create a snapshot
-3. Get all databases back into normal operation mode and collect potential delta data in *.DELTA files stored separately
+3. Get all databases back into normal operation mode and collect potential delta data in *.DELTA files stored separately via Domino Backup C-API
 4. Let a backup application backup the snapshot ( e.g. mount the snapshot read-only and backup the consistent state )
 5. Release the snapshot
 
@@ -135,3 +141,4 @@ Domino Backup does only need to control the first three steps. Backup and releas
 6. Removed the *.DELTA file
 7. Unmount the snapshot
 8. Optionally: Roll the database forward to a given point in time in case of archive transaction logging.
+

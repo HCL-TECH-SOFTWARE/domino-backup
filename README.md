@@ -1,10 +1,3 @@
----
-layout: default
-title: Domino Backup Introduction
-nav_order: 1
-description: "HCL Domino Introduction"
-permalink: /
----
 
 # Domino Backup and Restore
 

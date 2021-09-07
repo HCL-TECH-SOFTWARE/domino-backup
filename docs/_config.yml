@@ -2,10 +2,12 @@
 theme: "just-the-docs"
 remote_theme: pmarsceill/just-the-docs
 title: "Domino Backup"
-description: A modern take on REST interaction with Domino
+description: HCL Domino Backup and Restore 
 version: 1.0
 logo: "/assets/images/svg/Domino.svg"
 git_url: "https://github.com/HCL-TECH-SOFTWARE/domino-backup"
+url: https://volt.domino-lab.net
+baseurl: ""
 permalink: pretty
 exclude:
   [
