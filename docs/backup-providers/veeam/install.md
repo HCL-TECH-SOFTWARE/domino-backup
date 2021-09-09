@@ -2,11 +2,12 @@
 layout: default
 title: "Domino Veeam Installation"
 nav_order: 3
-parent: "Backup Providers"
+parent: Veeam
+grand_parent: "Backup Providers"
 description: "Install Domino Backup Veeam Integration"
 ---
 
-# Domino Backup Veeam Integration Step by Step Installation
+## Domino Backup Veeam Integration Step by Step Installation
 
 ## Configuration Settings
 
@@ -16,7 +17,7 @@ This instruction uses the following configuration settings:
 - `veeam-mount` is the user mounting Veeam backups to your Domino server.
 - `veeam-server.acme.loc` sample host name for Veeam Backup and Replication server.
   Note: In production environments The Veeam server should be referenced by DNS entry.
-In case no DNS is available, the IP address can be specified.
+  In case no DNS is available, the IP address can be specified.
 - `domino.acme.loc` DNS name of the Domino on Linux server.
 - `192.168.1.12` sample address for Domino on Linux server.
   The IP address is used to identify the Domino server connection.
@@ -29,8 +30,8 @@ In preparation for the Veeam server Domino Backup configuration the following co
 The keys created can be used for multiple servers and should be well protected on transfer between machines.
 
 - SSH key for the `veeam-mount` user
- used by the Veeam server to authenticate with the Domino server Linux hosts  
- 
+  used by the Veeam server to authenticate with the Domino server Linux hosts
+
 - SSH key for the `notes` user located on the Domino server to authenticate with the OpenSSH server on the Veeam server
 
 ### Configuration for first Domino on Linux server
@@ -60,7 +61,7 @@ The following files are copied
   Domino snapshot script called when the snapshot starts and to return to **backup_domino_snapshot.sh** the snapshot can start
 - **backup_snapshot.sh**  
   Domino snapshot script called when Domino processed and performed a backup for potential delta files.  
-  This script integrates with the **backup_domino_snapshot_done.sh**  
+  This script integrates with the **backup_domino_snapshot_done.sh**
 - **backup_post.sh**  
   Final script executed at the end of the backup operation on the Domino side.
 - **restore_db.sh**  
@@ -118,7 +119,6 @@ sudo whoami
 
 The `whoami` command should return `root`
 
-
 ### Create a SSH key for the veeam-mount user
 
 Create a new RSA key (in RSA Key format instead of OpenSSH format).
@@ -133,7 +133,7 @@ The file content should look like the following output and is needed to authenti
 This key will be used on Domino Linux server and just needs to be added to `.ssh/authorized_keys` on each Domino target server.
 
 In our example the key is created with a passphrase.  
-Veeam supports RSA keys with and without password/passphrase for application aware processing and mount operations on Linux.  
+Veeam supports RSA keys with and without password/passphrase for application aware processing and mount operations on Linux.
 
 ```
 -----BEGIN RSA PRIVATE KEY-----
@@ -198,7 +198,7 @@ The key's randomart image is:
 +----[SHA256]-----+
 ```
 
-Your key file  `/home/notes/.ssh/id_ed25519` should look similar to the following line:
+Your key file `/home/notes/.ssh/id_ed25519` should look similar to the following line:
 
 ```
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOxdxrII+d10+EmUAIOvbXJm/EFMAorfApm5VZc+GcxK notes@jupiter.amce.loc
@@ -214,7 +214,7 @@ Copy the configuration files from the `veeam_server` directory to `c:\dominoback
 
 The directory contains the following files
 
-- PowerShell script to search and mount Veeam Restore Points (separate sub directories) 
+- PowerShell script to search and mount Veeam Restore Points (separate sub directories)
 - JSON configuration file
 - pre-freeze and post-thaw scripts for Linux
 
@@ -297,7 +297,7 @@ Open `Manage Credentials` in the upper left menu and create a new entry `Linux p
 - Enter `veeam-mount` for the user name
 - Select the private key file to use
 - Add the password if the key has a password/passphrase
-- Specify an unique description for the user and specify the name.  
+- Specify an unique description for the user and specify the name.
 - Ensure privilege elevation is selected to allow the Veeam server to use `sudo` for mount operations
 
 For detailed instructions an information check [Veeam Backup & Replication: Linux Private Keys (Identity/Pubkey)](https://helpcenter.veeam.com/docs/backup/hyperv/credentials_manager_linux_pubkey.html)
@@ -325,7 +325,7 @@ The configuration contains the following information:
     "AccountName" : "veeam-mount",
     "OS"          : "Linux"
   }
- 
+
 ]
 ```
 
@@ -361,4 +361,3 @@ Warning: Permanently added 'veeam-server.acme.loc' (ECDSA) to the list of known 
 
 After confirming the connection check the output of the command.
 The output should show the environment variables and configuration found.
-

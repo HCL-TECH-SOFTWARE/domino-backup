@@ -6,8 +6,7 @@ description: "HCL Domino Backup Configuration Interface"
 has_children: false
 ---
 
-
-# Server Configuration
+## Server Configuration
 
 A server configuration is the main configuration for all backup/restore/prune operations.
 Each server has exactly one configuration which could be either a dedicated server configuration, a default configuration.
@@ -41,7 +40,7 @@ This field is only available for a server specific configuration and defines the
 
 ### Node Name
 
-Optional note name for a server specific configuration. 
+Optional note name for a server specific configuration.
 By default the note name is the CN of the Domino server name. Spaces are converted to underscores.
 
 If you want to change the note name for a global or named configuration use the following notes.ini parameter nshback_node
@@ -50,17 +49,17 @@ If you want to change the note name for a global or named configuration use the 
 
 This parameter allows to define exclude patterns.
 Those exclude entries are using regular expressions as defined for @matches operations.
-If you want to exclude a directory you have to add a wild-card parameter like mydirectory/* 
+If you want to exclude a directory you have to add a wild-card parameter like mydirectory/\*
 
 ### Backup Target Dir Databases
 
 Directory defining the backup directory for NSF files.
-This parameter will be assigned to the  BackupTargetDir variable and can be used in database backup/restore/prune command formulas
+This parameter will be assigned to the BackupTargetDir variable and can be used in database backup/restore/prune command formulas
 
 ### Backup Target Dir Translog
 
 Directory defining the backup directory for Translog TXN files.
-This parameter will be assigned to the  BackupTargetDir variable and can be used in translog backup/restore/prune command formulas
+This parameter will be assigned to the BackupTargetDir variable and can be used in translog backup/restore/prune command formulas
 
 ### Backup Log Dir
 
@@ -69,7 +68,7 @@ Directory defining the log file directory.
 ### Backup Target Dir Files
 
 Directory defining the backup directory for files backed up using the file backup functionality.
-This parameter will be assigned to the  BackupTargetDir variable and can be used file backup command formulas
+This parameter will be assigned to the BackupTargetDir variable and can be used file backup command formulas
 
 ### Backup Retention (Days)
 
@@ -219,7 +218,7 @@ Command for Translog restore operations
 Command for Snapshot restore operations.
 This option is command is only used for explicit snapshot operations.
 If you enable snapshots for normal backups, the normal restore commands are used.
-For *.DELTA files always the normal restore command is used.
+For \*.DELTA files always the normal restore command is used.
 
 This command allows to use different logic for snapshot operations than for normal backup operations.
 
@@ -345,7 +344,7 @@ The resulting file name is used to apply delta files.
 
 ### Backup Ref String
 
-This string is matched for reference results. 
+This string is matched for reference results.
 Those references can be used for backup restore operations to identify backups
 
 ### Notification Form
@@ -370,4 +369,3 @@ This option would create empty delta file if not delta occurs. This can be usefu
 
 Allows to use your specific formatted date for a restore operation.
 The formula is executed against the restore document.
-

@@ -2,11 +2,12 @@
 layout: default
 title: "Veeam Domino Integration"
 nav_order: 2
-parent: "Backup Providers"
-description: "HCL Domino Backup Veeam Integration" 
+parent: Veeam
+grand_parent: "Backup Providers"
+description: "HCL Domino Backup Veeam Integration"
 ---
 
-# Domino V12 Veeam Backup and Replication Integration
+## Domino V12 Veeam Backup and Replication Integration
 
 ## Introduction
 
@@ -14,9 +15,9 @@ The Domino Backup integration for Veeam Backup and Replication provides integrat
 Veeam Backup and Replication uses application aware processing integrating with the new Domino V12 Backup leveraging pre-freeze and post-thaw scripts.
 This Domino V12 Backup integration provides full Domino application support bringing all databases into an consistent state (Domino backup API) in combination with Veeam snapshot technology.
 
-- Backup operations are scheduled and initiated by Veeam Backup and Replication.  
+- Backup operations are scheduled and initiated by Veeam Backup and Replication.
 
-- Domino restore operations are initiated by a Domino administrator leveraging the feature rich Domino based restore UI in the Domino Backup database `dominobackup.nsf`.  
+- Domino restore operations are initiated by a Domino administrator leveraging the feature rich Domino based restore UI in the Domino Backup database `dominobackup.nsf`.
 
 This integration is supported on Windows64 and Linux64.
 
@@ -31,19 +32,19 @@ Those scripts are executed on the Domino server before and after a Veeam snapsho
 
 - The `post-thaw` script triggers Domino Backup to bring all databases back from backup mode into normal operation mode and backup delta data accumulated while databases have been in backup mode.
 
-This integration allows full and incremental backups with Veeam Backup and Replication. The inventory of backups is listed in the Veeam repository ("`restore points`") and also in the Domino backup database (`dominobackup.nsf`). The restore operation is always initiated by the Domino administrator in the Domino native UI for restore leveraging the database inventory on the Domino side.  
+This integration allows full and incremental backups with Veeam Backup and Replication. The inventory of backups is listed in the Veeam repository ("`restore points`") and also in the Domino backup database (`dominobackup.nsf`). The restore operation is always initiated by the Domino administrator in the Domino native UI for restore leveraging the database inventory on the Domino side.
 
 ### Domino Restore
 
 Restore operations are fully integrated and initiated in the Domino Backup `dominobackup.nsf` database.
-A Domino admin creates a restore request for databases.  
+A Domino admin creates a restore request for databases.
 
 Request are performed by the restore server task on the Domino server
 The restore task leverages scripts (batch/shell script) to
 
 - Find the right restore point
 - Mount a restore point to the Domino server
-- Copy databases (nsf/ntf/box) and backup delta (*.DELTA files) from a Veeam backup into the Domino data directory.
+- Copy databases (nsf/ntf/box) and backup delta (\*.DELTA files) from a Veeam backup into the Domino data directory.
 
 The Domino restore server task takes care of bringing the database on-line and performs post processing like disable replication, change replia-id, restore documents and folders into the original database.
 
@@ -53,13 +54,13 @@ In this scenario Veeam ensures the retention of backup data as defined in the ba
 
 ## Mount and Restore Operation Implementation
 
-The mount operation requires direct communication with the Veeam Backup and Restore server and leverages the Veeam PowerShell command line interface to control the Veeam Backup and Replication server.  
+The mount operation requires direct communication with the Veeam Backup and Restore server and leverages the Veeam PowerShell command line interface to control the Veeam Backup and Replication server.
 
-- A Powershell script on the Veeam server identifies and mounts the right restore point to perform mount operations on the Domino server to allow Domino to restore databases.  
+- A Powershell script on the Veeam server identifies and mounts the right restore point to perform mount operations on the Domino server to allow Domino to restore databases.
 
-- The mount request is initiated by a Domino restore script triggered by the restore server task on the Domino server requesting the restore.  
+- The mount request is initiated by a Domino restore script triggered by the restore server task on the Domino server requesting the restore.
 
-- The mount operation on the traget Domino machine uses Admin credentials already defined for application aware scripts ( `pre-freeze` & `post-thaw` ).  
+- The mount operation on the traget Domino machine uses Admin credentials already defined for application aware scripts ( `pre-freeze` & `post-thaw` ).
 
 - The restore script on the Domino server machine finds the desired database in the mounted restore point and copies the database to the requested restore location
 
@@ -67,7 +68,7 @@ The mount operation requires direct communication with the Veeam Backup and Rest
 
 ## Windows OpenSSH Server Configuration
 
-The communication between the Domino servers and the Veeam Backup and Replication server leverages the Secure Shell protocol (ssh) authenticated via private/public key security. User/Password authentication is disabled by design.  
+The communication between the Domino servers and the Veeam Backup and Replication server leverages the Secure Shell protocol (ssh) authenticated via private/public key security. User/Password authentication is disabled by design.
 
 This integration provides a safe and reliable cross platform communication channel and doesn't require servers to belong to the same Windows domain or PowerShell remote execution.
 All Domino servers can use the same SSH key or individual keys for authentication.
@@ -75,7 +76,7 @@ All Domino servers can use the same SSH key or individual keys for authenticatio
 ### Public/Private Key Authentication
 
 This integration leverages the Microsoft OpenSSH with a restricted configuration only allowing restore mount and unmount operations for each Domino server.  
-A SSH key is configured via `.ssh/authorized_keys` for a Windows user account with Veeam restore operator permissions.  
+A SSH key is configured via `.ssh/authorized_keys` for a Windows user account with Veeam restore operator permissions.
 
 The command execution is restricted to a single mount/unmount PowerShell script via `authorized_keys` configuration to allow tight control of requested operations.
 
@@ -104,13 +105,12 @@ command="powershell.exe c:/domino/veeam/DominoRestore.ps1" ssh-rsa AAAAB3NzaC1yc
 
 `Note:` OpenSSH requires strict permission on the authorizied_keys. Make sure the file is only readable by admins and the user
 
-
 ## Configuration File
 
 An agent-less backup leveraging backup via a virtualization back-end like `VMware` or `Hyper-V` does not provide a direct mapping between the guest operation systems and their IP addresses.
 The restore operation triggered from the Domino server only provides the IP address of the requesting server and the requested restore time.
 
-Therefore for mapping and verifying restore requests this integration leverages a central configuration file in JSON format on the Backup and Replication server.  
+Therefore for mapping and verifying restore requests this integration leverages a central configuration file in JSON format on the Backup and Replication server.
 
 The configuration defines which Domino server can perform mount/unmount operations (in addition to the SSH public/private key authentication) and also ensures each server can only restore from it's own restore points.
 
@@ -167,15 +167,15 @@ c:/scripts/domino/linux/post-thaw.sh
 
 ### Domino Server Backup Configuration
 
-Domino Backup integrates with Veeam for backup and restore operation leveraging batch (Windows) and shell scripts (Linux).  
+Domino Backup integrates with Veeam for backup and restore operation leveraging batch (Windows) and shell scripts (Linux).
 
 The scripts should be copied to the following directories. Ensure the files are executable by the Domino user (usually: notes) and root.
 
 - Windows:
-`c:/Program Files/HCL/Domino/backup/veeam`
+  `c:/Program Files/HCL/Domino/backup/veeam`
 
 - Linux:
-`/opt/hcl/domino/backup/veeam`
+  `/opt/hcl/domino/backup/veeam`
 
 The DXL configuration file provided in this repository contains the corresponding configuration and can be imported directly into the `dominobackup.nsf` database.  
 For custom installation directories adjust the script directory in the configuraiton accordingly.
@@ -183,39 +183,39 @@ For custom installation directories adjust the script directory in the configura
 The following scripts are used for integration:
 
 - `backup_domino_snapshot.cmd/sh`  
-Veeam snapshot script invoked by the pre-freeze script to start Domino backup in snapshot mode  
-(brings databases into consistent/freeze state before a Veeam snapshot is started)
+  Veeam snapshot script invoked by the pre-freeze script to start Domino backup in snapshot mode  
+  (brings databases into consistent/freeze state before a Veeam snapshot is started)
 
 - `backup_snapshot_start.cmd/sh`  
-Helper script started by Domino Backup to indicate databases are in consistent state  
-(communicates the status back to `backup_domino_snapshot.cmd/sh`)
+  Helper script started by Domino Backup to indicate databases are in consistent state  
+  (communicates the status back to `backup_domino_snapshot.cmd/sh`)
 
 - `backup_domino_snapshot_done.cmd/sh`  
-Veeam snapshot script invoked by the `post-thaw` script to signal the snapshot has been created
+  Veeam snapshot script invoked by the `post-thaw` script to signal the snapshot has been created
 
 - `backup_snapshot.cmd/sh`  
-Helper script started by Domino Backup to capture post snapshot operations.  
-The script waits until Veeam has performed a snapshot and communicated back via `post-thwa` script to Domino.
+  Helper script started by Domino Backup to capture post snapshot operations.  
+  The script waits until Veeam has performed a snapshot and communicated back via `post-thwa` script to Domino.
 
 - `backup_post.cmd/sh`  
-Script executed when the backup is finished on the Domino server side to allow post processing.  
-Future integration point for scheduling backup of delta files created during backup.
+  Script executed when the backup is finished on the Domino server side to allow post processing.  
+  Future integration point for scheduling backup of delta files created during backup.
 
 - `prune_backup.cmd/sh`  
-Script to prune backup delta files and logs
+  Script to prune backup delta files and logs
 
 - `restore_db.cmd/sh`  
-Restore script to mount Veem backups, find/copy databases and delta files.  
-Invokes a restore mount/unmount request via SSH connection to the Veeam Backup and Replication server.
+  Restore script to mount Veem backups, find/copy databases and delta files.  
+  Invokes a restore mount/unmount request via SSH connection to the Veeam Backup and Replication server.
 
 - `backup_translog.cmd/sh`  
-Script to backup a translog extend -- Not implemented yet
+  Script to backup a translog extend -- Not implemented yet
 
 - `prune_translog.cmd/sh`  
-Script to prune transaction log files and logs -- Not implemented yet
+  Script to prune transaction log files and logs -- Not implemented yet
 
 - `restore_translog.cmd/sh`  
-Restore script for translog extends  -- Not implemented yet
+  Restore script for translog extends -- Not implemented yet
 
 ### Special Consideration and Settings
 
@@ -231,9 +231,9 @@ The integration into Domino Backup is implemented via `pre-freeze` and `post-tha
 
 - Veeam Backup Job --> `pre-freeze.cmd` --> `backup_domino_snapshot.cmd/sh` --> `load backup -s` (Domino Backup)
 
-- Domino Backup  --> `backup_snapshot_start.cmd/sh` --> Brings all databases into backup mode and writes status file to confirm Domino is in snapshot backup mode
+- Domino Backup --> `backup_snapshot_start.cmd/sh` --> Brings all databases into backup mode and writes status file to confirm Domino is in snapshot backup mode
 
-- Domino Backup  --> `backup_snapshot.cmd/sh` --> Waits until snapshot status is confirmed
+- Domino Backup --> `backup_snapshot.cmd/sh` --> Waits until snapshot status is confirmed
 
 - Veeam Backup Job "Snapshot Created" --> `post-thaw.cmd` --> `backup_domino_snapshot_done.cmd/sh` --> sets snapshot status to "DONE" to terminate the `backup_snapshot.cmd/sh` and return control to Domino Backup
 
