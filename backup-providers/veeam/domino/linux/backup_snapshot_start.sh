@@ -31,7 +31,6 @@
 DOMINO_DATA_PATH=/local/notesdata
 
 # Log and trace files
-LOGFILE=/local/backup/log/backup_snapshot_start.log
 TRACEFILE=/local/backup/log/trace.log
 
 # --- End Configuration ---
@@ -40,13 +39,6 @@ TRACEFILE=/local/backup/log/trace.log
 # Internal variables
 DOMBACK_STATUS_FILE=$DOMINO_DATA_PATH/dominobackup_snapshot.lck
 DOMBACK_TAG_FILE=$DOMINO_DATA_PATH/dominobackup_$7.tag
-
-
-logfile()
-{
-  if [ -z "$LOGFILE" ]; then return 0; fi
-  echo "$@" >> $LOGFILE
-}
 
 tracefile()
 {
@@ -65,35 +57,34 @@ write_backup_trace_tags()
     sleep 1
     count=$(expr $count + 1)
   done
-
 }
 
-logfile "[$(date '+%F %T')] --- BACKUP SNAPSHOT START ---"
+echo "[$(date '+%F %T')] --- BACKUP SNAPSHOT START ---"
 
-logfile "--- RESTORE DB ---"
-logfile "PhysicalFileName : $1"
-logfile "FileName         : $2"
-logfile "BackupReference  : $3"
-logfile "BackupNode       : $4"
-logfile "BackupName       : $5"
-logfile "BackupMode       : $6"
-logfile "BackupStartDT    : $7"
-logfile "BackupTargetDir  : $8"
-logfile "Status File      : $DOMBACK_STATUS_FILE"
-logfile "Tag File         : $DOMBACK_TAG_FILE"
+echo "--- RESTORE DB ---"
+echo "PhysicalFileName : $1"
+echo "FileName         : $2"
+echo "BackupReference  : $3"
+echo "BackupNode       : $4"
+echo "BackupName       : $5"
+echo "BackupMode       : $6"
+echo "BackupStartDT    : $7"
+echo "BackupTargetDir  : $8"
+echo "Status File      : $DOMBACK_STATUS_FILE"
+echo "Tag File         : $DOMBACK_TAG_FILE"
 
 SNAPSHOT_STATUS=
 if [ -e "$DOMBACK_STATUS_FILE" ]; then
   SNAPSHOT_STATUS=$(head -1 $DOMBACK_STATUS_FILE)
 fi
 
-logfile "SNAPSHOT_STATUS : $SNAPSHOT_STATUS"
+echo "SNAPSHOT_STATUS : $SNAPSHOT_STATUS"
 
 tracefile "STATUS: [$SNAPSHOT_STATUS] [$0]"
 
 if [ "$SNAPSHOT_STATUS" = "REQUESTED" ]; then
 
-  logfile "writing [$7] into [$DOMBACK_TAG_FILE]"
+  echo "writing [$7] into [$DOMBACK_TAG_FILE]"
   echo $7 > $DOMBACK_TAG_FILE
 
   DATE_TAG=$(date '+%F %T' |tr ' ' '_' | tr ':' '_')
@@ -103,14 +94,14 @@ if [ "$SNAPSHOT_STATUS" = "REQUESTED" ]; then
   sync
   sleep 2
 
-  logfile "------------------------------------------------------"
-  ls -l $DOMINO_DATA_PATH/*.tag >> $LOGFILE
-  ls -l $DOMINO_DATA_PATH/*.trace >> $LOGFILE
-  ls -l $DOMINO_DATA_PATH/*.nsf >> $LOGFILE
-  logfile "------------------------------------------------------"
+  echo  "------------------------------------------------------"
+  ls -l $DOMINO_DATA_PATH/*.tag
+  ls -l $DOMINO_DATA_PATH/*.trace
+  ls -l $DOMINO_DATA_PATH/*.nsf
+  echo "------------------------------------------------------"
 
   echo DOMINO-DONE > $DOMBACK_STATUS_FILE
-  logfile "[$(date '+%F %T')] Domino done"
+  echo "[$(date '+%F %T')] Domino done"
   echo "Return: PROCESSED - Snapshot successfully started"
   exit 0
 

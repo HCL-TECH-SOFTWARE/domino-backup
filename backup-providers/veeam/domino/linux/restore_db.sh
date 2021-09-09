@@ -33,9 +33,6 @@ VEEAM_SERVER_SSH=notes@192.168.1.1
 # Timeout for SSH connection
 TIMEOUT=60
 
-# Log file
-LOGFILE=/local/backup/log/restore_db.log
-
 # --- End Configuration ---
 
 
@@ -45,12 +42,6 @@ SSH_CMD=ssh
 # Restore mount path where Veeam mounts restores as a start point to search
 VEEAM_RESTORE_BASE_PATH=/tmp
 
-
-logfile()
-{
-  if [ -z "$LOGFILE" ]; then return 0; fi
-  echo "$@" >> $LOGFILE
-}
 
 copy_restore_file()
 {
@@ -77,27 +68,27 @@ FILE_EXT=$(echo $9 | rev | cut -d. -s -f 1 | rev)
 # Unique tag used to verify/identify the backup when mounted
 DOMBACK_TAG_FILE=dominobackup_$7.tag
 
-logfile "[$(date '+%F %T')] --- RESTORE DB ---"
-logfile "PhysicalFileName : $1"
-logfile "FileName         : $2"
-logfile "BackupReference  : $3"
-logfile "BackupNode       : $4"
-logfile "BackupName       : $5"
-logfile "BackupMode       : $6"
-logfile "BackupStartDT    : $7"
-logfile "BackupTargetDir  : $8"
-logfile "RestoreFileName  : $9"
-logfile "FileExtension    : $FILE_EXT"
+echo "[$(date '+%F %T')] --- RESTORE DB ---"
+echo "PhysicalFileName : $1"
+echo "FileName         : $2"
+echo "BackupReference  : $3"
+echo "BackupNode       : $4"
+echo "BackupName       : $5"
+echo "BackupMode       : $6"
+echo "BackupStartDT    : $7"
+echo "BackupTargetDir  : $8"
+echo "RestoreFileName  : $9"
+echo "FileExtension    : $FILE_EXT"
 
 # Delta files are restored from a different location
 
 if [ "$FILE_EXT" = ".DELTA" ]; then
-  logfile "Found DELTA Extension"
+  echo "Found DELTA Extension"
 
   set SOURCE=$8/$4/$6/$7/$2
 
   if [ -n "$SOURCE" ]; then
-    logfile "copy [$SOURCE] [$TARGET]"
+    echo "copy [$SOURCE] [$TARGET]"
     copy_restore_file "$SOURCE" "$TARGET"
   fi
 
@@ -105,14 +96,14 @@ else
 
   # Ensure the restore request always uses a .DAD extension
   if [ "$FILE_EXT" = ".DAD" ]; then
-    logfile "Already has .DAD extension"
+    echo "Already has .DAD extension"
   else
-    logfile "Appending missing .DAD extension"
+    echo "Appending missing .DAD extension"
     TARGET=$TARGET.DAD
   fi
 
-  logfile "Mouting snaphot"
-  timeout $TIMEOUT $SSH_CMD $VEEAM_SERVER_SSH mount $7 >> $LOGFILE 2>&1
+  echo "Mouting snaphot"
+  timeout $TIMEOUT $SSH_CMD $VEEAM_SERVER_SSH mount $7 2>&1
 
   # Search mounted directories for backup tag file to verify the right mount and get the Domino data directory
   FOUND_FILE_PATH=
@@ -125,27 +116,27 @@ else
     SOURCE=$FOUND_NOTESDATA/$2
   fi
 
-  logfile "DOMBACK_TAG_FILE: [$DOMBACK_TAG_FILE]"
-  logfile "FOUND_FILE_PATH : [$FOUND_FILE_PATH]"
-  logfile "FOUND_NOTESDATA : [$FOUND_NOTESDATA]"
-  logfile "SOURCE          : [$SOURCE]"
+  echo "DOMBACK_TAG_FILE: [$DOMBACK_TAG_FILE]"
+  echo "FOUND_FILE_PATH : [$FOUND_FILE_PATH]"
+  echo "FOUND_NOTESDATA : [$FOUND_NOTESDATA]"
+  echo "SOURCE          : [$SOURCE]"
 
   if [ -n "$SOURCE" ]; then
-    logfile "copy [$SOURCE] [$TARGET]"
+    echo "copy [$SOURCE] [$TARGET]"
     copy_restore_file "$SOURCE" "$TARGET"
   fi
 
-  logfile "Unmounting snaphot"
-  timeout $TIMEOUT $SSH_CMD $VEEAM_SERVER_SSH unmount >> $LOGFILE 2>&1
+  echo "Unmounting snaphot"
+  timeout $TIMEOUT $SSH_CMD $VEEAM_SERVER_SSH unmount 2>&1
 
 fi
 
 # Log additional fields with same alignment
-logfile "SOURCE : [$SOURCE]"
-logfile "TARGET : [$TARGET]"
-logfile
-logfile "[$(date '+%F %T')] Restore operation completed"
-logfile
+echo "SOURCE : [$SOURCE]"
+echo "TARGET : [$TARGET]"
+echo
+echo "[$(date '+%F %T')] Restore operation completed"
+echo
 
 if [ -e "$TARGET" ]; then
   echo "Return: PROCESSED ($TARGET)"

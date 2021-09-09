@@ -39,9 +39,7 @@ DOMINO_USER=notes
 # Timeout to bring databases into backup mode
 TIMEOUT=120
 
-
 # Log and trace files
-LOGFILE=/local/backup/log/backup_domino_snapshot.log
 TRACEFILE=/local/backup/log/trace.log
 
 # --- End Configuration ---
@@ -49,13 +47,6 @@ TRACEFILE=/local/backup/log/trace.log
 
 # Internal variables
 DOMBACK_STATUS_FILE=$DOMINO_DATA_PATH/dominobackup_snapshot.lck
-
-
-logfile()
-{
-  if [ -z "$LOGFILE" ]; then return 0; fi
-  echo "$@" >> $LOGFILE
-}
 
 tracefile()
 {
@@ -72,7 +63,7 @@ tracefile "STATUS: [$SNAPSHOT_STATUS] [$0]"
 
 echo REQUESTED > $DOMBACK_STATUS_FILE
 
-echo [$(date '+%F %T')] Snapshot requested >> $LOGFILE
+echo [$(date '+%F %T')] Snapshot requested
 
 # remember current directory
 CURRENT_DIR=$(pwd)
@@ -101,7 +92,7 @@ do
 
   if [ "$SNAPSHOT_STATUS" = "DOMINO-DONE" ]; then
     echo "Snapshot successfully started after $count seconds"
-    logfile "[$(date '+%F %T')] Snapshot started after $count seconds"
+    echo "[$(date '+%F %T')] Snapshot started after $count seconds"
     exit 0
   fi
 

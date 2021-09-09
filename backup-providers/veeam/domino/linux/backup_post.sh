@@ -30,9 +30,6 @@
 # Domino data directory
 DOMINO_DATA_PATH=/local/notesdata
 
-# Log file
-LOGFILE=/local/backup/log/backup_post.log
-
 # --- End Configuration ---
 
 
@@ -40,22 +37,16 @@ LOGFILE=/local/backup/log/backup_post.log
 DOMBACK_STATUS_FILE=$DOMINO_DATA_PATH/dominobackup_snapshot.lck
 
 
-logfile()
-{
-  if [ "$LOGFILE" = "" ]; then return 0; fi
-  echo "$@" >> $LOGFILE
-}
-
-logfile "--- POST BACKUP ---"
-logfile "PhysicalFileName : $1"
-logfile "FileName         : $2"
-logfile "BackupReference  : $3"
-logfile "BackupNode       : $4"
-logfile "BackupName       : $5"
-logfile "BackupMode       : $6"
-logfile "BackupStartDT    : $7"
-logfile "BackupTargetDir  : $8"
-logfile "RestoreFileName  : $9"
+echo "--- POST BACKUP ---"
+echo "PhysicalFileName : $1"
+echo "FileName         : $2"
+echo "BackupReference  : $3"
+echo "BackupNode       : $4"
+echo "BackupName       : $5"
+echo "BackupMode       : $6"
+echo "BackupStartDT    : $7"
+echo "BackupTargetDir  : $8"
+echo "RestoreFileName  : $9"
 
 if [ -e "$DOMBACK_STATUS_FILE" ]; then
   rm -f "$DOMBACK_STATUS_FILE"

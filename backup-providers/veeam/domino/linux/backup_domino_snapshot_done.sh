@@ -30,23 +30,22 @@
 # Domino data directory
 DOMINO_DATA_PATH=/local/notesdata
 
-# Log file
-LOGFILE=/local/backup/log/backup_domino_snapshot_done.log
+# Log and trace files
+TRACEFILE=/local/backup/log/trace.log
 
 # --- End Configuration ---
-
 
 # Internal variables
 DOMBACK_STATUS_FILE=$DOMINO_DATA_PATH/dominobackup_snapshot.lck
 
-
-logfile()
+tracefile()
 {
-  if [ -z "$LOGFILE" ]; then return 0; fi
-  echo "$@" >> $LOGFILE
+  if [ -z "$TRACEFILE" ]; then return 0; fi
+  echo "[$(date '+%F %T')] $@" >> $TRACEFILE
 }
 
-echo DONE > $DOMBACK_STATUS_FILE
-echo [$(date '+%F %T')] Snapshot done >> $LOGFILE
+echo [$(date '+%F %T')] Snapshot done
+
+tracefile "STATUS: [$SNAPSHOT_STATUS] [$0]"
 
 exit 0

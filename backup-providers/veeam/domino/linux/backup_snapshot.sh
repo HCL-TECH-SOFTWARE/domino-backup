@@ -34,7 +34,6 @@ DOMINO_DATA_PATH=/local/notesdata
 TIMEOUT=120
 
 # Log and trace files
-LOGFILE=/local/backup/log/backup_snapshot.log
 TRACEFILE=/local/backup/log/trace.log
 
 # --- End Configuration ---
@@ -44,12 +43,6 @@ TRACEFILE=/local/backup/log/trace.log
 DOMBACK_STATUS_FILE=$DOMINO_DATA_PATH/dominobackup_snapshot.lck
 DOMBACK_TAG_FILE=$DOMINO_DATA_PATH/dominobackup_$7.tag
 
-
-logfile()
-{
-  if [ -z "$LOGFILE" ]; then return 0; fi
-  echo "$@" >> $LOGFILE
-}
 
 tracefile()
 {
@@ -79,7 +72,7 @@ write_backup_trace_tags()
 
 tracefile "STATUS: [$SNAPSHOT_STATUS] [$0]"
 
-logfile "[$(date '+%F %T')] Waiting until snapshot status created - Status: [$SNAPSHOT_STATUS]"
+echo "[$(date '+%F %T')] Waiting until snapshot status created - Status: [$SNAPSHOT_STATUS]"
 
 count=0
 while true
@@ -98,8 +91,8 @@ do
     fi
 
     echo "Return: PROCESSED - Snapshot Done in $count seconds"
-    logfile "[$(date '+%F %T')] Snapshot created after $count seconds"
-    logfile "[$(date '+%F %T')] FINAL SNAPSHOT_STATUS: [$SNAPSHOT_STATUS]"
+    echo "[$(date '+%F %T')] Snapshot created after $count seconds"
+    echo "[$(date '+%F %T')] FINAL SNAPSHOT_STATUS: [$SNAPSHOT_STATUS]"
     exit 0
   fi
 
