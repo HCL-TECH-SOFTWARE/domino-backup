@@ -7,7 +7,7 @@ version: 1.0
 logo: "/assets/images/svg/Domino.svg"
 git_url: "https://github.com/HCL-TECH-SOFTWARE/domino-backup"
 # url: https://volt.domino-lab.net
-baseurl: ""
+baseurl: "/domino-backup"
 permalink: pretty
 exclude:
   [
