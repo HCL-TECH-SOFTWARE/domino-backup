@@ -44,6 +44,8 @@ tracefile()
   echo "[$(date '+%F %T')] $@" >> $TRACEFILE
 }
 
+echo DONE > $DOMBACK_STATUS_FILE
+
 echo [$(date '+%F %T')] Snapshot done
 
 tracefile "STATUS: [$SNAPSHOT_STATUS] [$0]"

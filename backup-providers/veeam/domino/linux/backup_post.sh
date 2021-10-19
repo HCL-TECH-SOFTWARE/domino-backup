@@ -46,7 +46,7 @@ echo "BackupName       : $5"
 echo "BackupMode       : $6"
 echo "BackupStartDT    : $7"
 echo "BackupTargetDir  : $8"
-echo "RestoreFileName  : $9"
+echo "RetentionDays    : $9"
 
 if [ -e "$DOMBACK_STATUS_FILE" ]; then
   rm -f "$DOMBACK_STATUS_FILE"
