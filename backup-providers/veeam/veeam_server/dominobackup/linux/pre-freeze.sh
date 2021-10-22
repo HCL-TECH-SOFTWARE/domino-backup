@@ -2,6 +2,7 @@
 
 # ----------------------------------------------------------------------
 # Domino Linux Veeam post pre-freeze script
+# Last updated: 22.10.2021
 # ----------------------------------------------------------------------
 
 # Copyright 2021 HCL America, Inc.
@@ -29,17 +30,16 @@
 # This script is the integration script on the Veeam side to call the actual scripts
 # which are located on the Domino on Linux server in /opt/hcl/domino/backup/veeam.
 
-# Specify Domino user to switch to via sudo if not using the Domino user directly for SSH login
-#DOMINO_SUDO_USER=notes
-
-echo "[$(date '+%F %T')] Veeam script [$0] executed" >> /tmp/veeam.log
-
 SCRIPT_NAME=/opt/hcl/domino/backup/veeam/backup_domino_snapshot.sh
+TRACEFILE=/tmp/dominoveeam_trace.log
 
-if [ -z "$DOMINO_SUDO_USER" ]; then
-  $SCRIPT_NAME
-else
-  sudo su "$DOMINO_SUDO_USER" -c "$SCRIPT_NAME"
-fi
+echo "[$(date '+%F %T')] Veeam script [$0] executed" >> $TRACEFILE 2>&1
+echo "[$(date '+%F %T')] [$0] running [$SCRIPT_NAME]" >> $TRACEFILE 2>&1
 
-exit $?
+$SCRIPT_NAME >> $TRACEFILE 2>&1
+
+RET=$?
+echo "[$(date '+%F %T')] [$0] STATUS returned: [$RET]" >> $TRACEFILE 2>&1
+
+exit $RET
+

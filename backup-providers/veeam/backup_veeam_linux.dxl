@@ -118,5 +118,6 @@
 <item name='PruneSnapshotCommand'><text/></item>
 <item name='NotificationLevel'><textlist><text>E</text><text>W</text></textlist></item>
 <item name='NotificationAppendDoc'><text/></item></document>
+<item name='RestorePostCommand'><text>restore_post.sh</text></item>
 </database>
 

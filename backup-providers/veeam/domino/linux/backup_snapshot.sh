@@ -2,6 +2,7 @@
 
 # ----------------------------------------------------------------------
 # Domino Snapshot Backup Script
+# Last updated: 22.10.2021
 # ----------------------------------------------------------------------
 
 # Copyright 2021 HCL America, Inc.
@@ -34,7 +35,7 @@ DOMINO_DATA_PATH=/local/notesdata
 TIMEOUT=120
 
 # Log and trace files
-TRACEFILE=/local/backup/log/trace.log
+TRACEFILE=/tmp/dominoveeam_trace.log
 
 # --- End Configuration ---
 
@@ -71,8 +72,7 @@ write_backup_trace_tags()
 }
 
 tracefile "STATUS: [$SNAPSHOT_STATUS] [$0]"
-
-echo "[$(date '+%F %T')] Waiting until snapshot status created - Status: [$SNAPSHOT_STATUS]"
+tracefile "Waiting until snapshot status created - Status: [$SNAPSHOT_STATUS]"
 
 count=0
 while true
@@ -90,14 +90,19 @@ do
       rm -f "$DOMBACK_TAG_FILE"
     fi
 
+    tracefile "Snapshot created after $count seconds"
+    tracefile "FINAL SNAPSHOT_STATUS: [$SNAPSHOT_STATUS]"
+
     echo "Return: PROCESSED - Snapshot Done in $count seconds"
     echo "[$(date '+%F %T')] Snapshot created after $count seconds"
     echo "[$(date '+%F %T')] FINAL SNAPSHOT_STATUS: [$SNAPSHOT_STATUS]"
+
     exit 0
   fi
 
   if [ $count -ge $TIMEOUT ]; then
     echo "Return: ERROR - No Snapshot status. Timeout reached"
+    tracefile "Return: ERROR - No Snapshot status. Timeout reached"
     exit 1
   fi
 
@@ -106,4 +111,7 @@ do
 done
 
 echo Return: ERROR
+
+tracefile "ERROR returned"
 exit 0
+

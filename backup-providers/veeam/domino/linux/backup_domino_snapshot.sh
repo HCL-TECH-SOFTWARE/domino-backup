@@ -2,6 +2,7 @@
 
 # ----------------------------------------------------------------------
 # Domino Backup Snaphot trigger script to bring all databases into backup mode
+# Last updated: 22.10.2021
 # ----------------------------------------------------------------------
 
 # Copyright 2021 HCL America, Inc.
@@ -40,7 +41,7 @@ DOMINO_USER=notes
 TIMEOUT=120
 
 # Log and trace files
-TRACEFILE=/local/backup/log/trace.log
+TRACEFILE=/tmp/dominoveeam_trace.log
 
 # --- End Configuration ---
 
@@ -62,10 +63,10 @@ fi
 tracefile "STATUS: [$SNAPSHOT_STATUS] [$0]"
 
 echo REQUESTED > $DOMBACK_STATUS_FILE
-
+tracefile "NewStatus: REQUESTED"
 echo [$(date '+%F %T')] Snapshot requested
 
-# remember current directory
+# Remember current directory
 CURRENT_DIR=$(pwd)
 cd $DOMINO_DATA_PATH
 
@@ -75,7 +76,7 @@ else
   $LOTUS/bin/server -c 'load backup -s'
 fi
 
-# switch back to original path
+# Switch back to original path
 cd $CURRENT_DIR
 
 # Now wait for Domino Backup to return that all databases are in backup mode
@@ -91,13 +92,13 @@ do
   tracefile "STATUS: [$SNAPSHOT_STATUS] [$0]"
 
   if [ "$SNAPSHOT_STATUS" = "DOMINO-DONE" ]; then
-    echo "Snapshot successfully started after $count seconds"
+    tracefile "Snapshot successfully started after $count seconds"
     echo "[$(date '+%F %T')] Snapshot started after $count seconds"
     exit 0
   fi
 
   if [ $count -ge $TIMEOUT ]; then
-    echo "ERROR: Cannot start snapshot on Domino server - Timeout reached"
+    tracefile "ERROR: Cannot start snapshot on Domino server - Timeout reached"
     exit 1
   fi
 
@@ -106,3 +107,4 @@ do
 done
 
 exit 0
+

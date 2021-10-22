@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # ----------------------------------------------------------------------
-# Domino Linux Veeam post thaw script
+# Domino Veeam backup post script to unmount backups 
 # Last updated: 22.10.2021
 # ----------------------------------------------------------------------
 
@@ -25,21 +25,32 @@
 # under the License.
 # ----------------------------------------------------------------------
 
-# This script is uploaded to the Domino on Linux server by Veeam.
-# It is executed and the server to unfreeze Domino databases after snapshot.
-# This script is the integration script on the Veeam side to call the actual scripts
-# which are located on the Domino on Linux server in /opt/hcl/domino/backup/veeam.
 
-SCRIPT_NAME=/opt/hcl/domino/backup/veeam/backup_domino_snapshot_done.sh
-TRACEFILE=/tmp/dominoveeam_trace.log
+# --- Begin Configuration ---
 
-echo "[$(date '+%F %T')] Veeam script [$0] executed" >> $TRACEFILE 2>&1
-echo "[$(date '+%F %T')] [$0] running [$SCRIPT_NAME]" >> $TRACEFILE 2>&1
+# Veeam server ssh connection
+VEEAM_SERVER_SSH=notes@192.168.1.1
 
-$SCRIPT_NAME >> $TRACEFILE 2>&1
+# Timeout for SSH connection
+TIMEOUT=60
 
-RET=$?
-echo "[$(date '+%F %T')] [$0] STATUS returned: [$RET]" >> $TRACEFILE 2>&1
+# --- End Configuration ---
 
-exit $RET
+
+# Internal variables
+SSH_CMD=ssh
+
+# Restore mount path where Veeam mounts restores as a start point to search
+VEEAM_RESTORE_BASE_PATH=/tmp
+
+
+echo "Unmounting snaphots"
+timeout $TIMEOUT $SSH_CMD $VEEAM_SERVER_SSH unmount 2>&1
+
+
+echo "Return: PROCESSED ($TARGET)"
+
+# echo "Return: ERROR - Cannot unmount backups"
+
+exit 0
 

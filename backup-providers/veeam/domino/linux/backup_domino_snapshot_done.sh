@@ -2,6 +2,7 @@
 
 # ----------------------------------------------------------------------
 # Snapshot integration script to signal the snapshot is done
+# Last updated: 22.10.2021
 # ----------------------------------------------------------------------
 
 # Copyright 2021 HCL America, Inc.
@@ -31,7 +32,7 @@
 DOMINO_DATA_PATH=/local/notesdata
 
 # Log and trace files
-TRACEFILE=/local/backup/log/trace.log
+TRACEFILE=/tmp/dominoveeam_trace.log
 
 # --- End Configuration ---
 
@@ -46,8 +47,14 @@ tracefile()
 
 echo DONE > $DOMBACK_STATUS_FILE
 
-echo [$(date '+%F %T')] Snapshot done
+tracefile "NewStatus: DONE"
+
+SNAPSHOT_STATUS=
+if [ -e "$DOMBACK_STATUS_FILE" ]; then
+  SNAPSHOT_STATUS=$(head -1 $DOMBACK_STATUS_FILE)
+fi
 
 tracefile "STATUS: [$SNAPSHOT_STATUS] [$0]"
 
 exit 0
+

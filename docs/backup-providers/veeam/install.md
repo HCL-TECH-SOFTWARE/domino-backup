@@ -67,6 +67,8 @@ The following files are copied
 - **restore_db.sh**  
   Restore script for requesting database restores from Veeam.  
   This script mounts the backup and copies over databases back to Domino as reuqested by the administrator.
+- **restore_restore.sh**  
+  Post restore script to unmount Veeam mounts used during restore operations.  
 
 ### Configure the restore script
 
@@ -74,7 +76,7 @@ The restore script requires a connection to the Veeam server.
 To ensure proper communications a DNS entry should be in place.  
 An IP address would be usually only used in test environments.
 
-Edit the file `/opt/hcl/domino/backup/veeam/restore_db.sh` to bind the restore_db.sh script to your Veeam server.
+Edit the file `/opt/hcl/domino/backup/veeam/restore_db.sh` and `/opt/hcl/domino/backup/veeam/restore_post.sh` configure to your Veeam server connection.
 
 The `VEEAM_SERVER_SSH` variable should point to the user specified on the Veeam server side ( usually `notes` ) @ the DNS name of the Veeam server as shown in the following example.
 

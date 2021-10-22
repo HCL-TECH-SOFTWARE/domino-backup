@@ -228,7 +228,6 @@ if ( $RestoreContentInfo -eq $null )
 {
   Write-Host "Error: No restore session created"
   return 1
-}
 
 foreach ($RestoreContentType in $RestoreContentInfo)
 {

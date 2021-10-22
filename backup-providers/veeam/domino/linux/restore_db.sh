@@ -2,6 +2,7 @@
 
 # ----------------------------------------------------------------------
 # Domino Veeam database and *.DELTA file restore script
+# Last updated: 22.10.2021
 # ----------------------------------------------------------------------
 
 # Copyright 2021 HCL America, Inc.
@@ -102,10 +103,7 @@ else
     TARGET=$TARGET.DAD
   fi
 
-  echo "Mouting snaphot"
-  timeout $TIMEOUT $SSH_CMD $VEEAM_SERVER_SSH mount $7 2>&1
-
-  # Search mounted directories for backup tag file to verify the right mount and get the Domino data directory
+  # Search first in already mounted restores
   FOUND_FILE_PATH=
   FOUND_NOTESDATA=
 
@@ -116,24 +114,43 @@ else
     SOURCE=$FOUND_NOTESDATA/$2
   fi
 
-  echo "DOMBACK_TAG_FILE: [$DOMBACK_TAG_FILE]"
-  echo "FOUND_FILE_PATH : [$FOUND_FILE_PATH]"
-  echo "FOUND_NOTESDATA : [$FOUND_NOTESDATA]"
-  echo "SOURCE          : [$SOURCE]"
+
+  # If not found mount a backup
+  if [ -z "$FOUND_FILE_PATH" ]; then
+
+    echo "Mouting snaphot"
+    timeout $TIMEOUT $SSH_CMD $VEEAM_SERVER_SSH mount $7 2>&1
+
+    # Search mounted directories for backup tag file to verify the right mount and get the Domino data directory
+    FOUND_FILE_PATH=
+    FOUND_NOTESDATA=
+
+    FOUND_FILE_PATH=$(find $VEEAM_RESTORE_BASE_PATH -name "$DOMBACK_TAG_FILE" | head -1 2>/dev/null)
+
+    if [ -n "$FOUND_FILE_PATH" ]; then
+      FOUND_NOTESDATA=$(dirname $FOUND_FILE_PATH)
+      SOURCE=$FOUND_NOTESDATA/$2
+    fi
+  fi
+
+  echo
+  echo "DOMBACK_TAG_FILE : [$DOMBACK_TAG_FILE]"
+  echo "FOUND_FILE_PATH  : [$FOUND_FILE_PATH]"
+  echo "FOUND_NOTESDATA  : [$FOUND_NOTESDATA]"
+  echo "SOURCE           : [$SOURCE]"
+  echo "TARGET           : [$TARGET]"
 
   if [ -n "$SOURCE" ]; then
-    echo "copy [$SOURCE] [$TARGET]"
+    echo "COPY             : [$SOURCE] [$TARGET]"
     copy_restore_file "$SOURCE" "$TARGET"
   fi
 
-  echo "Unmounting snaphot"
-  timeout $TIMEOUT $SSH_CMD $VEEAM_SERVER_SSH unmount 2>&1
+  # echo "Unmounting snaphot"
+  # timeout $TIMEOUT $SSH_CMD $VEEAM_SERVER_SSH unmount 2>&1
 
 fi
 
 # Log additional fields with same alignment
-echo "SOURCE : [$SOURCE]"
-echo "TARGET : [$TARGET]"
 echo
 echo "[$(date '+%F %T')] Restore operation completed"
 echo
@@ -145,3 +162,4 @@ fi
 
 echo "Return: ERROR - Cannot copy file"
 exit 1
+

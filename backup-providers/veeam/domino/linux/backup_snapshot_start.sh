@@ -2,6 +2,7 @@
 
 # ----------------------------------------------------------------------
 # Domino Snapshot Backup Script
+# Last updated: 22.10.2021
 # ----------------------------------------------------------------------
 
 # Copyright 2021 HCL America, Inc.
@@ -31,7 +32,7 @@
 DOMINO_DATA_PATH=/local/notesdata
 
 # Log and trace files
-TRACEFILE=/local/backup/log/trace.log
+TRACEFILE=/tmp/dominoveeam_trace.log
 
 # --- End Configuration ---
 
@@ -44,19 +45,6 @@ tracefile()
 {
   if [ -z "$TRACEFILE" ]; then return 0; fi
   echo "[$(date '+%F %T')] $@" >> $TRACEFILE
-}
-
-write_backup_trace_tags()
-{
-  local count=0
-
-  while [ $count -lt 60 ];
-  do
-    DATE_TAG=$(date '+%F %T' |tr ' ' '_' | tr ':' '_')
-    echo $DATE_TAG > ${DOMINO_DATA_PATH}/${DATE_TAG}.${count}.trace
-    sleep 1
-    count=$(expr $count + 1)
-  done
 }
 
 echo "[$(date '+%F %T')] --- BACKUP SNAPSHOT START ---"
@@ -84,29 +72,30 @@ tracefile "STATUS: [$SNAPSHOT_STATUS] [$0]"
 
 if [ "$SNAPSHOT_STATUS" = "REQUESTED" ]; then
 
-  echo "writing [$7] into [$DOMBACK_TAG_FILE]"
+  echo "Writing [$7] into [$DOMBACK_TAG_FILE]"
   echo $7 > $DOMBACK_TAG_FILE
 
-  DATE_TAG=$(date '+%F %T' |tr ' ' '_' | tr ':' '_')
-  echo $7 > $DOMINO_DATA_PATH/$DATE_TAG.trace
-
-  # make sure all dirty buffers have been written and the file-system contains all data for the snapshot 
+  # Make sure all dirty buffers have been written and the file-system contains all data for the snapshot
   sync
   sleep 2
 
   echo  "------------------------------------------------------"
   ls -l $DOMINO_DATA_PATH/*.tag
-  ls -l $DOMINO_DATA_PATH/*.trace
   ls -l $DOMINO_DATA_PATH/*.nsf
   echo "------------------------------------------------------"
 
   echo DOMINO-DONE > $DOMBACK_STATUS_FILE
-  echo "[$(date '+%F %T')] Domino done"
+  echo "[$(date '+%F %T')] NewStatus: DOMINO-DONE"
   echo "Return: PROCESSED - Snapshot successfully started"
+
+  tracefile "NewStatus: DOMINO-DONE"
+  tracefile "Return: PROCESSED - Snapshot successfully started"
   exit 0
 
 else
 
   echo "Return: ERROR - No backup pending"
+  tracefile "Return: ERROR - No backup pending"
   exit 1
 fi
+

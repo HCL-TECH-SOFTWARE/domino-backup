@@ -2,6 +2,7 @@
 
 # ----------------------------------------------------------------------
 # Domino Backup Snapshot Script to finalize the snapshot backup operation
+# Last updated: 22.10.2021
 # ----------------------------------------------------------------------
 
 # Copyright 2021 HCL America, Inc.
@@ -46,7 +47,7 @@ echo "BackupName       : $5"
 echo "BackupMode       : $6"
 echo "BackupStartDT    : $7"
 echo "BackupTargetDir  : $8"
-echo "RetentionDays    : $9"
+echo "RestoreFileName  : $9"
 
 if [ -e "$DOMBACK_STATUS_FILE" ]; then
   rm -f "$DOMBACK_STATUS_FILE"
@@ -55,3 +56,4 @@ fi
 echo Return: PROCESSED
 
 exit 0
+
