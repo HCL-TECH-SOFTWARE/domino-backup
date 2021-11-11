@@ -182,7 +182,20 @@ if ( @($TargetAdminCreds).Count -gt 1 )
 }
 
 $OrigDominoBackupTime = [datetime]::ParseExact($RestoreDate.Trim() + "Z", "yyyyMMddHHmmssZ", $null)
+
+if ([string]::IsNullOrEmpty($OrigDominoBackupTime))
+{
+  Write-Host "Error: Invalid restore date specified"
+  return 1
+}
+
 $DominoBackupTime = $OrigDominoBackupTime.AddMinutes(-$RestoreClockSkewMinutes)
+
+if ([string]::IsNullOrEmpty($DominoBackupTime))
+{
+  Write-Host "Error: Cannot convert timedate"
+  return 1
+}
 
 Write-Host "Backup Time String       : $RestoreDate"
 Write-Host "Backup Time (local time) : $OrigDominoBackupTime"
@@ -191,6 +204,12 @@ Write-Host "RestoreVmHost            : $RestoreVmHost"
 Write-Host "Credentials used:        : $TargetAdminCreds"
 
 $RestorePoint = Get-VBRRestorePoint | Where-Object{ ($_.VMname -eq $RestoreVmHost) -and ($_.CreationTime -gt $DominoBackupTime)} | sort CreationTime |  Select-Object -First 1
+
+if ( @($RestorePoint).Count -eq 0 )
+{
+  Write-Host "Error: No restore point found"
+  return 1
+}
 
 if ( @($RestorePoint).Count -eq 1 )
 {
@@ -207,7 +226,7 @@ if ( @($RestorePoint).Count -eq 1 )
 }
 else
 {
-  Write-Host "Error: No restore point found"
+  Write-Host "Error: Multiple restore points found"
   return 1
 }
 
@@ -228,6 +247,7 @@ if ( $RestoreContentInfo -eq $null )
 {
   Write-Host "Error: No restore session created"
   return 1
+}
 
 foreach ($RestoreContentType in $RestoreContentInfo)
 {
@@ -243,4 +263,6 @@ foreach ($RestoreContentType in $RestoreContentInfo)
 }
 
 Write-Host "OK: Mount"
+
 return 0
+
