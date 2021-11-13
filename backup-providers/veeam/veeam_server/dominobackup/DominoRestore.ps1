@@ -156,14 +156,21 @@ if ( $UnmountCommand -eq $True )
     return 0
   }
     
-  Write-Host "Unmounting" @($RestoreSessions).Count "backup(s) ..."
+  $BeforeUnmount = Get-Date
+
+  Write-Host $BeforeUnmount.ToString() "Unmounting" @($RestoreSessions).Count "backup(s) ..."
 
   foreach ($Session in $RestoreSessions)
   {
     Unpublish-VBRBackupContent $Session
   }
 
-  Write-Host "OK: Backups unmounted"
+  $AfterUnmount = Get-Date
+  $Duration = $AfterUnmount - $BeforeUnmount
+
+  Write-Host $AfterUnmount.ToString() "Unmount operation fishined (" $Duration.TotalSeconds.ToString("0.0") "seconds )"
+
+  Write-Host "OK: Backup(s) unmounted"
   return 0
 }
 
@@ -202,8 +209,18 @@ Write-Host "Backup Time (local time) : $OrigDominoBackupTime"
 Write-Host "Backup Search Time       : $DominoBackupTime"
 Write-Host "RestoreVmHost            : $RestoreVmHost"
 Write-Host "Credentials used:        : $TargetAdminCreds"
+Write-Host
+
+
+$BeforeSearch = Get-Date
 
 $RestorePoint = Get-VBRRestorePoint | Where-Object{ ($_.VMname -eq $RestoreVmHost) -and ($_.CreationTime -gt $DominoBackupTime)} | sort CreationTime |  Select-Object -First 1
+
+$AfterSearch = Get-Date
+$Duration = $AfterSearch - $BeforeSearch
+
+Write-Host "Backup search:" $Duration.TotalSeconds.ToString("0.0") "seconds )"
+Write-Host
 
 if ( @($RestorePoint).Count -eq 0 )
 {
@@ -213,16 +230,24 @@ if ( @($RestorePoint).Count -eq 0 )
 
 if ( @($RestorePoint).Count -eq 1 )
 {
-  Write-Host "Mounting backup restore point: " $RestorePoint.ID " Backup Time UTC: " $RestorePoint.CreationTimeUtc
+  $BeforeMount = Get-Date
+
+  Write-Host $BeforeMount.ToString() "Mounting backup restore point: " $RestorePoint.ID " Backup Time UTC: " $RestorePoint.CreationTimeUtc
 
   if ($MountFUSE)
   {
-    $RestoreSession = Publish-VBRBackupContent -RestorePoint $RestorePoint -EnableFUSEProtocol -TargetServerName $RestoreTarget -TargetServerCredentials $TargetAdminCreds
+    $RestoreSession = Publish-VBRBackupContent -RestorePoint $RestorePoint -EnableFUSEProtocol -TargetServerName $RestoreTarget -TargetServerCredentials $TargetAdminCreds -Reason "Domino Restore operation"
   }
   else
   {
-    $RestoreSession = Publish-VBRBackupContent -RestorePoint $RestorePoint -TargetServerName $RestoreTarget -TargetServerCredentials $TargetAdminCreds
+    $RestoreSession = Publish-VBRBackupContent -RestorePoint $RestorePoint -TargetServerName $RestoreTarget -TargetServerCredentials $TargetAdminCreds -Reason "Domino Restore operation"
   }
+
+  $AfterMount = Get-Date
+  $Duration = $AfterMount - $BeforeMount
+
+  Write-Host $AfterMount.ToString() "Mount operation fishined (" $Duration.TotalSeconds.ToString("0.0") "seconds )"
+  Write-Host
 }
 else
 {
@@ -233,19 +258,19 @@ else
 if ( $RestoreSession -eq $null )
 {
   Write-Host "Error: No restore session created"
+  return 1
 }
-else
-{
-  Write-Host "Backup Job Name :" $RestoreSession.BackupName 
-  Write-Host "Restore Point   :" $RestoreSession.RestorePoint 
-  Write-Host "VM Name         :" $RestoreSession.PublicationName
 
-  $RestoreContentInfo = Get-VBRPublishedBackupContentInfo -Session $RestoreSession
-}    
+Write-Host "Backup Job Name :" $RestoreSession.BackupName 
+Write-Host "Restore Point   :" $RestoreSession.RestorePoint 
+Write-Host "VM Name         :" $RestoreSession.PublicationName
+Write-Host
+
+$RestoreContentInfo = Get-VBRPublishedBackupContentInfo -Session $RestoreSession
 
 if ( $RestoreContentInfo -eq $null )
 {
-  Write-Host "Error: No restore session created"
+  Write-Host "Error: No restore content found"
   return 1
 }
 
@@ -260,9 +285,10 @@ foreach ($RestoreContentType in $RestoreContentInfo)
   Write-Host "Available From :" $RestoreContentType.ServerIps "(Port:"  $RestoreContentType.ServerPort ")"
   Write-Host "Available Via  :" $RestoreDisks.AccessLink
   Write-Host "-------------------------------------------------------------------------------------"
+  Write-Host
 }
 
-Write-Host "OK: Mount"
+Write-Host "OK: Mount operations successfully completed"
+Write-Host
 
 return 0
-
