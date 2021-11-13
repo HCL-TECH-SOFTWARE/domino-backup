@@ -2,7 +2,7 @@
 
 # ----------------------------------------------------------------------
 # Domino Veeam backup post script to unmount backups 
-# Last updated: 22.10.2021
+# Last updated: 21.10.2021
 # ----------------------------------------------------------------------
 
 # Copyright 2021 HCL America, Inc.
@@ -53,4 +53,3 @@ echo "Return: PROCESSED ($TARGET)"
 # echo "Return: ERROR - Cannot unmount backups"
 
 exit 0
-

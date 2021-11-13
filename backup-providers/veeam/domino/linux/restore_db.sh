@@ -2,7 +2,7 @@
 
 # ----------------------------------------------------------------------
 # Domino Veeam database and *.DELTA file restore script
-# Last updated: 22.10.2021
+# Last updated: 21.10.2021
 # ----------------------------------------------------------------------
 
 # Copyright 2021 HCL America, Inc.
@@ -51,7 +51,7 @@ copy_restore_file()
 
 
   if [ ! -e "$1" ]; then
-    echo " Source database not found [$1] -- Cannot copy database" 
+    echo " Source database not found [$1] -- Cannot copy database"
     return 0
   fi
 
@@ -162,4 +162,3 @@ fi
 
 echo "Return: ERROR - Cannot copy file"
 exit 1
-

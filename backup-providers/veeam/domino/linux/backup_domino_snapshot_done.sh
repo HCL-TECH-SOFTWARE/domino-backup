@@ -2,7 +2,7 @@
 
 # ----------------------------------------------------------------------
 # Snapshot integration script to signal the snapshot is done
-# Last updated: 22.10.2021
+# Last updated: 21.10.2021
 # ----------------------------------------------------------------------
 
 # Copyright 2021 HCL America, Inc.
@@ -57,4 +57,3 @@ fi
 tracefile "STATUS: [$SNAPSHOT_STATUS] [$0]"
 
 exit 0
-

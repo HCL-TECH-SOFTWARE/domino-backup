@@ -2,7 +2,7 @@
 
 # ----------------------------------------------------------------------
 # Domino Backup Snapshot Script to finalize the snapshot backup operation
-# Last updated: 22.10.2021
+# Last updated: 21.10.2021
 # ----------------------------------------------------------------------
 
 # Copyright 2021 HCL America, Inc.
@@ -56,4 +56,3 @@ fi
 echo Return: PROCESSED
 
 exit 0
-

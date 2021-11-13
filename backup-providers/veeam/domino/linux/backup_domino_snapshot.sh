@@ -2,7 +2,7 @@
 
 # ----------------------------------------------------------------------
 # Domino Backup Snaphot trigger script to bring all databases into backup mode
-# Last updated: 22.10.2021
+# Last updated: 21.10.2021
 # ----------------------------------------------------------------------
 
 # Copyright 2021 HCL America, Inc.
@@ -107,4 +107,3 @@ do
 done
 
 exit 0
-

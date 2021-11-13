@@ -2,7 +2,7 @@
 
 # ----------------------------------------------------------------------
 # Domino Snapshot Backup Script
-# Last updated: 22.10.2021
+# Last updated: 21.10.2021
 # ----------------------------------------------------------------------
 
 # Copyright 2021 HCL America, Inc.
@@ -68,8 +68,16 @@ write_backup_trace_tags()
     sleep 1
     count=$(expr $count + 1)
   done
-
 }
+
+remove_tag_file()
+{
+  if [ -e "$DOMBACK_TAG_FILE" ]; then
+    echo "Removed tag file []"
+    rm -f "$DOMBACK_TAG_FILE"
+  fi
+}
+
 
 tracefile "STATUS: [$SNAPSHOT_STATUS] [$0]"
 tracefile "Waiting until snapshot status created - Status: [$SNAPSHOT_STATUS]"
@@ -86,9 +94,7 @@ do
 
   if [ "$SNAPSHOT_STATUS" = "DONE" ]; then
 
-    if [ -e "$DOMBACK_TAG_FILE" ]; then
-      rm -f "$DOMBACK_TAG_FILE"
-    fi
+	remove_tag_file
 
     tracefile "Snapshot created after $count seconds"
     tracefile "FINAL SNAPSHOT_STATUS: [$SNAPSHOT_STATUS]"
@@ -103,6 +109,7 @@ do
   if [ $count -ge $TIMEOUT ]; then
     echo "Return: ERROR - No Snapshot status. Timeout reached"
     tracefile "Return: ERROR - No Snapshot status. Timeout reached"
+	remove_tag_file
     exit 1
   fi
 
@@ -110,8 +117,10 @@ do
   count=$(expr $count + 1)
 done
 
+remove_tag_file
+
 echo Return: ERROR
 
 tracefile "ERROR returned"
-exit 0
 
+exit 0
