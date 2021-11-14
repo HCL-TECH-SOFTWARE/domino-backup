@@ -59,7 +59,7 @@ echo [%DATE% %TIME%] Snapshot requested >> %LOGFILE%
 
 set CURRENT_DIR=%CD%
 cd /D %DOMINO_DATA_PATH%
-%LOTUS%\nserver.exe -c "load backup -s -w 60"
+%LOTUS%\nserver.exe -c "load backup -s"
 cd /D %CURRENT_DIR%
 
 set /a count = 1
