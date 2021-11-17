@@ -29,8 +29,9 @@ REM  --- Begin Configuration ---
 
 set DOMINO_DATA_PATH=e:\notesdata
 
-set TRACEFILE=c:\log\backup_tracefile.log
-REM SET TRACEFILE=nul
+set TRACEFILE=nul
+REM set TRACEFILE=c:\log\backup_tracefile.log
+
 
 REM  --- End Configuration ---
 

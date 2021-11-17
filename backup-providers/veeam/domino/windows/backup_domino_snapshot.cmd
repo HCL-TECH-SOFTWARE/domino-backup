@@ -28,25 +28,45 @@ REM  ----------------------------------------------------------------------
 REM  --- Begin Configuration ---
 
 set LOTUS=C:\Program Files\HCL\Domino
-set LOTUS=c:\domino
 set DOMINO_DATA_PATH=e:\notesdata
 
 set TIMEOUT=120
 set DOMBACK_STATUS_FILE=%DOMINO_DATA_PATH%\dominobackup_snapshot.lck
 
-set LOGFILE=c:\log\backup_domino_snapshot.log
-REM SET LOGFILE=nul
+REM Use psexec Microsoft Systinternals helper tool to start processes via system account
+REM See https://docs.microsoft.com/en-us/sysinternals/downloads/psexec for details
 
-set TRACEFILE=c:\log\backup_tracefile.log
+REM set PSEXEC_BIN=
+set PSEXEC_BIN=c:\psexec.exe
 
-REM SET TRACEFILE=nul
+set LOGFILE=nul
+REM set LOGFILE=c:\log\backup_domino_snapshot.log
+
+set TRACEFILE=nul
+REM set TRACEFILE=c:\log\backup_tracefile.log
 
 REM  --- End Configuration ---
 
 
+REM Sanity check if data directory exists
 if not exist "%DOMINO_DATA_PATH%\names.nsf" (
   echo [%DATE% %TIME%] Cannot access data directory [%DOMINO_DATA_PATH%] >> %LOGFILE%
   exit /b 1
+)
+
+
+REM Check if Domino server is running. Backup is always started in server context and should not run if the server is stopped.
+tasklist /fi "imagename eq nserver.exe" /fo csv | findstr /i nserver.exe >nul 2>nul
+
+if "%errorlevel%"=="0" (
+
+  echo [%DATE% %TIME%] Domino server is running >> %LOGFILE%
+
+) else (
+
+  echo [%DATE% %TIME%] Domino server is not running - No nserver.exe process found >> %LOGFILE%
+  exit /b 1
+
 )
 
 set SNAPSHOT_STATUS=
@@ -57,10 +77,26 @@ echo REQUESTED> %DOMBACK_STATUS_FILE%
 
 echo [%DATE% %TIME%] Snapshot requested >> %LOGFILE%
 
-set CURRENT_DIR=%CD%
-cd /D %DOMINO_DATA_PATH%
-%LOTUS%\nserver.exe -c "load backup -s"
-cd /D %CURRENT_DIR%
+
+REM Start backup operation via load command invokes the backup task in server context
+
+if "%PSEXEC_BIN%"=="" (
+
+  cd /D %DOMINO_DATA_PATH%
+
+  "%LOTUS%\nserver.exe" -c "load backup -s"
+
+) else (
+
+  REM Run operation as system account and don't wait for termination
+   echo "-- Before PSEXEC launching backup servertask --"
+  %PSEXEC_BIN% -w %DOMINO_DATA_PATH% -d -s "%LOTUS%\nserver.exe" -c "load backup -s"
+   echo "-- After PSEXEC launching backup server task --"
+
+)
+
+REM Wait for snapshot completed by checking the status file
+
 
 set /a count = 1
 
@@ -82,7 +118,8 @@ set /a count = 1
   )
 
   set /a count += 1
-  timeout /T 1 /NOBREAK > nul
+  REM wait for 1 second -- timeout command cannot be used in background. ping is a well known workaround
+  ping -n 2 -w 1 127.0.0.1 > nul
 
 goto LOOP
 

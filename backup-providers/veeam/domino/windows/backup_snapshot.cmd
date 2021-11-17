@@ -33,8 +33,9 @@ set TIMEOUT=120
 set DOMBACK_STATUS_FILE=%DOMINO_DATA_PATH%\dominobackup_snapshot.lck
 set DOMBACK_TAG_FILE=%DOMINO_DATA_PATH%\dominobackup_%~7.tag
 
-set TRACEFILE=c:\log\backup_tracefile.log
-REM SET TRACEFILE=nul
+set TRACEFILE=nul
+REM set TRACEFILE=c:\log\backup_tracefile.log
+
 
 REM  --- End Configuration ---
 
@@ -56,9 +57,9 @@ set /a count = 1
   set SNAPSHOT_STATUS=
   if exist %DOMBACK_STATUS_FILE% set /p SNAPSHOT_STATUS=<%DOMBACK_STATUS_FILE%
   echo [%DATE% %TIME%] STATUS: [%SNAPSHOT_STATUS%] [%0] >> %TRACEFILE%
+  echo [%DATE% %TIME%] STATUS: [%SNAPSHOT_STATUS%] COUNT [%count%]
 
   if "%SNAPSHOT_STATUS%" == "DONE" (
-    echo TEST BEFORE DELETE DOMBACK_TAG_FILE: [%DOMBACK_TAG_FILE%]
 
     del /Q %DOMBACK_TAG_FILE%
     echo Return: PROCESSED - Snapshot Done in %count% seconds
@@ -69,14 +70,20 @@ set /a count = 1
 
   if %count% geq %TIMEOUT% (
     del /Q %DOMBACK_TAG_FILE%
-    echo [%DATE% %TIME%] Return: ERROR - No Snapshot status. Timeout rearched
+    echo [%DATE% %TIME%] Return: ERROR - No Snapshot status. Timeout rearched after %TIMEOUT% seconds
     exit /b 1
   )
 
   set /a count += 1
-  timeout /T 1 /NOBREAK > nul
+  REM wait for 1 second -- timeout command cannot be used in background. ping is a well known workaround
+  ping -n 2 -w 1 127.0.0.1 > nul
+
+  echo [%DATE% %TIME%] TEST3
+
 
 goto LOOP
+
+  echo [%DATE% %TIME%] TEST4
 
 del /Q %DOMBACK_TAG_FILE%
 echo Return: ERROR - Unexpected snapshot status

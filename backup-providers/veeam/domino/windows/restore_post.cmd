@@ -27,13 +27,13 @@ REM  ----------------------------------------------------------------------
 
 REM  --- Begin Configuration ---
 
-set VEEAM_SERVER_SSH=notes@192.168.1.1
+set VEEAM_SERVER_SSH=notes@127.0.0.1
 
 REM  --- End Configuration ---
 
 echo:
 echo [%DATE% %TIME%] ---- Begin Unmounting all mounted snapshots ----
-ssh %VEEAM_SERVER_SSH% unmount 2>&1
+ssh -oBatchMode=yes -oPreferredAuthentications=publickey %VEEAM_SERVER_SSH% unmount 2>&1
 echo [%DATE% %TIME%] ---- End Unmounting all mounted snapshots ----
 echo:
 

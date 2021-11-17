@@ -27,7 +27,7 @@ REM  ----------------------------------------------------------------------
 
 REM  --- Begin Configuration ---
 
-set VEEAM_SERVER_SSH=notes@192.168.1.1
+set VEEAM_SERVER_SSH=notes@127.0.0.1
 set VEEAM_RESTORE_BASE_PATH=c:\VeeamFLR
 
 REM  --- End Configuration ---
@@ -103,7 +103,7 @@ REM If not found mount the right snapshot
 
 echo:
 echo [%DATE% %TIME%] ----- Begin Mounting snaphot ----- 
-ssh %VEEAM_SERVER_SSH% mount %7 2>&1
+ssh -oBatchMode=yes -oPreferredAuthentications=publickey %VEEAM_SERVER_SSH% mount %7 2>&1
 echo [%DATE% %TIME%] ----- End Mounting snaphot ----- 
 echo:
 

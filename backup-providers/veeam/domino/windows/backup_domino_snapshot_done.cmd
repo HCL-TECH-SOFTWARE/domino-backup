@@ -30,12 +30,13 @@ REM  --- Begin Configuration ---
 set DOMINO_DATA_PATH=e:\notesdata
 set DOMBACK_STATUS_FILE=%DOMINO_DATA_PATH%\dominobackup_snapshot.lck
 
-set LOGFILE=c:\log\backup_domino_snapshot_done.log
-REM SET LOGFILE=nul
+set LOGFILE=nul
+REM set LOGFILE=c:\log\backup_domino_snapshot_done.log
+
 
 REM  --- End Configuration ---
 
-
+REM Sanity check if data directory exists
 if not exist "%DOMINO_DATA_PATH%\names.nsf" (
   echo [%DATE% %TIME%] Cannot access data directory [%DOMINO_DATA_PATH%] >> %LOGFILE%
   exit /b 1
