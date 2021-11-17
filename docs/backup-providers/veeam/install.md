@@ -34,7 +34,7 @@ The keys created can be used for multiple servers and should be well protected o
 
 - SSH key for the `notes` user located on the Domino server to authenticate with the OpenSSH server on the Veeam server
 
-### Configuration for first Domino on Linux server
+### Copy and configure integration scripts
 
 Log into the Domino server as `root` user.
 
@@ -45,7 +45,7 @@ mkdir -p /opt/hcl/domino/backup/veeam
 cp veeam/domino/linux/* /opt/hcl/domino/backup/veeam
 ```
 
-Ensure the files can e executed
+Ensure the files can be executed
 
 ```
 chmod 755 /opt/hcl/domino/backup/veeam/*
@@ -93,7 +93,7 @@ Create a new user for Veeam mount operations.
 useradd -U -m veeam-mount
 ```
 
-Add `veeam-mount` user to sudo confiugration to allow operations requiring root permissions
+Add `veeam-mount` user to sudo configuration to allow operations requiring root permissions
 
 ```
 visudo
@@ -207,6 +207,171 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOxdxrII+d10+EmUAIOvbXJm/EFMAorfApm5VZc+GcxK
 ```
 
 The public key is located in `/home/notes/.ssh/id_ed25519.pub` and is added in the next step to the `notes` user on your Veeam server.
+
+
+## Domino Server on Windows configuration
+
+In preparation for the Veeam server Domino Backup configuration the following configuration is performed on a first Domino on Windows server.
+
+The key created can be used for multiple servers and should be well protected on transfer between machines.
+
+The SSH key is created for the user your Domino server is running with located on the Domino server to authenticate with the OpenSSH server on the Veeam server.
+
+### Copy and configure integration scripts
+
+Log into the Domino server on Windows
+
+Copy the backup scripts from the `domino\windows` directory to the `c:\dominobackup\veeam` directory.
+
+```
+cd \D c:\
+mkdir c:\dominobackup\veeam
+copy veeam/domino/windows c:\dominobackup\veeam
+```
+
+The following files are copied
+
+- **backup_domino_snapshot.cmd**  
+  Snapshot script executed by the Veeam server to bring Domino into snapshot mode ( `pre-freeze` )
+- **backup_domino_snapshot_done.cmd**  
+  Snapshort script to release the freeze on the Domino server ( `post-thaw` )
+- **backup_snapshot_start.cmd**  
+  Domino snapshot script called when the snapshot starts and to return to **backup_domino_snapshot.cmd** the snapshot can start
+- **backup_snapshot.cmd**  
+  Domino snapshot script called when Domino processed and performed a backup for potential delta files.  
+  This script integrates with the **backup_domino_snapshot_done.cmd**
+- **backup_post.cmd**  
+  Final script executed at the end of the backup operation on the Domino side.
+- **restore_db.cmd**  
+  Restore script for requesting database restores from Veeam.  
+  This script mounts the backup and copies over databases back to Domino as requested by the administrator.
+- **restore_restore.cmd**  
+  Post restore script to unmount Veeam mounts used during restore operations.  
+
+
+### Windows system account configuration
+
+Most Domino servers are leveraging the Windows system account.  
+This is a build-in account used by Windows services by default.  
+Due to security changes in Domino 12.0, all Domino processes have to either
+
+- Use the same user for all processes started (e.g. system account)
+- Or require special authorization(configuration) for the administrative user
+
+See technote for details https://support.hcltechsw.com/csm?id=kb_article&sysparm_article=KB0090343.
+
+If the server is started by the system account, the Domino backup servertask should be started also with the system account.  
+Microsoft offers a helper utility to allow command execution with the system account.  
+
+
+#### Download Microsoft psexec.exe
+
+Download the zip file for the ps-tools and extract the `psexec.exe` binary to your server (e.g. `c:\psexec.exe`).
+
+https://docs.microsoft.com/en-us/sysinternals/downloads/psexec
+
+Ensure the `PSEXEC_BIN` variable in `backup_domino_snapshot.cmd` points to this location.
+
+Note: Not having `psexec.exe` in the path and only invoke the exe using the absolute path is recommended.
+
+The `psexec.ex` helper tool is used to start the Domino backup servertask and also to configure the SSH connection for the system account later.
+
+
+### Configure script variables
+
+Edit all scripts and modify the parameter section based on your configuration
+
+- Data directory
+- Binary directory
+- Location of PSEXEC if used
+- Log and tracefile directories if used
+
+
+### Configure the restore script
+
+The restore script requires a connection to the Veeam server.  
+To ensure proper communications a DNS entry should be in place.  
+An IP address would be usually only used in test environments.
+
+Edit the file `c:\dominobackup\veeam\restore_db.cmd` and `c:\dominobackup\veeam\restore_post.cmd` configure to your Veeam server connection.
+
+The `VEEAM_SERVER_SSH` variable should point to the user specified on the Veeam server side ( usually `notes` ) @ the DNS name of the Veeam server as shown in the following example.
+
+```
+# Veeam server ssh connection
+VEEAM_SERVER_SSH=notes@veeam-server.acme.loc
+```
+
+### Create SSH key for the system account or your Domino server user
+
+For Domino servers using the system account open a cmd.exe window in the following way
+
+```
+PsExec.exe -ids cmd.exe
+```
+
+Verify the user is the system account
+
+```
+whoami
+nt authority\system
+```
+
+#### Create a new SSH key
+Depending on your Windows server version you ssh also supports modern keys like ED25519.
+
+In older versions you might need to use a RSA key instead.
+
+```
+ssh-keygen -t ed25519
+```
+
+In case you use have to use a RSA key, use the following command.  
+The configuration steps remain the same. Just the key output differs in detail.
+
+```
+ssh-keygen -t rsa
+```
+
+
+Confirm the location of the key. The key should not have a passphrase
+
+The result look like the following output:
+
+```
+ssh-keygen -t ed25519
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (C:\Windows\system32\config\systemprofile/.ssh/id_ed25519):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in C:\Windows\system32\config\systemprofile/.ssh/id_ed25519.
+Your public key has been saved in C:\Windows\system32\config\systemprofile/.ssh/id_ed25519.pub.
+The key fingerprint is:
+SHA256:dtDXNHAAAKbTo+ELKCOCzRs50jJYZfPcST1cQmqFZRs nt authority\system@win2022
+The key's randomart image is:
++--[ED25519 256]--+
+|    + o.oBEo+o+  |
+|   o B o.*++ + . |
+|  . + = * o.. .  |
+|o* o + o . .     |
+|% O o   S .      |
+|+= = . . .       |
+|  . .            |
+|                 |
+|                 |
++----[SHA256]-----+
+```
+
+Your public file `C:\Windows\system32\config\systemprofile/.ssh/id_ed25519.pub` should look similar to the following line:
+
+```
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDbzFCivR8PwAafXLBx7n4JlaoNV6T97WXciAhBtYckR nt authority\system@win2022
+```
+
+The public key is added in Veeam configuration step to the `notes` user on your Veeam server.  
+Once the public key is added to the `authorized_keys` file on the Veeam server, the SSH connection is verified with the same command window.  
+
+
 
 ## Veeam Backup and Replication server configuration
 
@@ -344,6 +509,8 @@ ssh veeam-mount@domino.acme.loc -i veeam_private.key
 Switch back to your Domino server to test the connection and confirm the public key of the OpenSSH server.
 
 The following command connects to the server and tests the connection to the PowerShell script.
+
+Note: On Windows using the system account, switch back to the existing cmd window with running with the system account.
 
 ```
 ssh notes@veeam-server.acme.loc check
