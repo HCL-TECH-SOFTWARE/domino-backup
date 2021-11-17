@@ -73,8 +73,8 @@ write_backup_trace_tags()
 remove_tag_file()
 {
   if [ -e "$DOMBACK_TAG_FILE" ]; then
-    echo "Removed tag file []"
     rm -f "$DOMBACK_TAG_FILE"
+    echo "Removed tag file [$DOMBACK_TAG_FILE]"
   fi
 }
 
@@ -107,9 +107,11 @@ do
   fi
 
   if [ $count -ge $TIMEOUT ]; then
+
+	remove_tag_file
+
     echo "Return: ERROR - No Snapshot status. Timeout reached"
     tracefile "Return: ERROR - No Snapshot status. Timeout reached"
-	remove_tag_file
     exit 1
   fi
 
@@ -120,7 +122,6 @@ done
 remove_tag_file
 
 echo Return: ERROR
-
 tracefile "ERROR returned"
 
 exit 0

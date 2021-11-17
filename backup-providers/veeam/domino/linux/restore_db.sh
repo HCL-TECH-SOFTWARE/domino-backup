@@ -119,7 +119,7 @@ else
   if [ -z "$FOUND_FILE_PATH" ]; then
 
     echo "Mouting snaphot"
-    timeout $TIMEOUT $SSH_CMD $VEEAM_SERVER_SSH mount $7 2>&1
+    timeout $TIMEOUT $SSH_CMD -oBatchMode=yes -oPreferredAuthentications=publickey $VEEAM_SERVER_SSH mount $7 2>&1
 
     # Search mounted directories for backup tag file to verify the right mount and get the Domino data directory
     FOUND_FILE_PATH=

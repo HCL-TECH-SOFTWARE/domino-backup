@@ -45,7 +45,7 @@ VEEAM_RESTORE_BASE_PATH=/tmp
 
 
 echo "Unmounting snaphots"
-timeout $TIMEOUT $SSH_CMD $VEEAM_SERVER_SSH unmount 2>&1
+timeout $TIMEOUT $SSH_CMD -oBatchMode=yes -oPreferredAuthentications=publickey $VEEAM_SERVER_SSH unmount 2>&1
 
 
 echo "Return: PROCESSED ($TARGET)"

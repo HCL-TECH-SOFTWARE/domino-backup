@@ -41,7 +41,7 @@ DOMINO_USER=notes
 TIMEOUT=120
 
 # Log and trace files
-TRACEFILE=/tmp/dominoveeam_trace.log
+#TRACEFILE=/tmp/dominoveeam_trace.log
 
 # --- End Configuration ---
 
@@ -54,6 +54,17 @@ tracefile()
   if [ -z "$TRACEFILE" ]; then return 0; fi
   echo "[$(date '+%F %T')] $@" >> $TRACEFILE
 }
+
+
+# Check if Domino server is running. Backup is always started in server context and should not run if the server is stopped
+
+DOMINO_RUNNING=$(ps -ef -fu $DOMINO_USER | grep "$LOTUS" | grep "server" | grep -v " -jc")
+
+if [ -z "$DOMINO_RUNNING" ]; then
+  tracefile "ERROR: Domino server is not running - No nserver.exe process found"
+  exit 1
+fi
+
 
 SNAPSHOT_STATUS=
 if [ -e "$DOMBACK_STATUS_FILE" ]; then
