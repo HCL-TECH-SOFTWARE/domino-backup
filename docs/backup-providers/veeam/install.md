@@ -166,7 +166,7 @@ chmod 600 authorized_keys
 
 ### Create SSH key for notes user
 
-Login with the `notes` user and run the following command to create a modern EC25519 key.  
+Login with the `notes` user and run the following command to create a ED25519 key.  
 The key will be used for SSH connections from Linux to the OpenSSH server installed on the Veeam server.
 
 ```
@@ -318,21 +318,12 @@ nt authority\system
 ```
 
 #### Create a new SSH key
-Depending on your Windows server version you ssh also supports modern keys like ED25519.
 
-In older versions you might need to use a RSA key instead.
+Create a ED25519 key to be used for the OpenSSH server.
 
 ```
 ssh-keygen -t ed25519
 ```
-
-In case you use have to use a RSA key, use the following command.  
-The configuration steps remain the same. Just the key output differs in detail.
-
-```
-ssh-keygen -t rsa
-```
-
 
 Confirm the location of the key. The key should not have a passphrase
 
@@ -372,7 +363,6 @@ The public key is added in Veeam configuration step to the `notes` user on your 
 Once the public key is added to the `authorized_keys` file on the Veeam server, the SSH connection is verified with the same command window.  
 
 
-
 ## Veeam Backup and Replication server configuration
 
 ### Copy configuration and script files
@@ -387,11 +377,25 @@ The directory contains the following files
 
 ### Setup OpenSSH server
 
-The OpensSSH server is part of Windows 2019. To install the optional component refer to the [OpenSSH official Microsoft documentation](https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse)
+The minimum required version for the OpenSSL server is **OpenSSH_for_Windows_8.1p1, LibreSSL 3.0.2** (first included in Windows 2022).  
+The OpensSSH server was first shipped with Windows 2019, but needs to be updated at least to version 8.1 manually (Windows updated does not update OpenSSH).  
 
-The most convienient option is to install and enable the OpenSSH server using PowerShell as described in the referenced documentation.
+In general it is recommended to use the latest stable version provided by Microsoft in their official repository.  
+The latest available stable version is **OpenSSH_for_Windows_8.6p1, LibreSSL 3.3.3 (26.05.2021)**.
 
-After you installed the OpenSSH server make sure the OpenSSH server configuration is updated with the following configuration.
+Refer to [OpenSSH official Microsoft documentation](https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse) to install the OpenSSL server.  
+The most convenient option is to install and enable the OpenSSH server using PowerShell as described in the referenced documentation.
+
+After installation perform the following steps to update OpenSSH client and server to the latest available stable release:
+
+- Download the files form the [OpenSSH PowerShell release page] (https://github.com/PowerShell/Win32-OpenSSH/releases).  
+
+- Make sure the OpenSSH service is not running
+- Replace the files in `C:\Windows\System32\OpenSSH`.
+
+- Verify your are running at least version **OpenSSH 8.1** by running `sshd -V` and `sshd -?` (there is no official option but an invalid option prints help including the version).
+
+After installing the OpenSSH server make sure the OpenSSH server configuration is updated with the following configuration, start the OpenSSH service and ensure it is set to start automatically.
 
 Edit `C:\ProgramData\ssh\sshd_config` to check and enable the following settings:
 
@@ -407,7 +411,13 @@ AllowTcpForwarding no
 PermitTunnel no
 ```
 
-Note: If your user is listed in the Windows administrator group, disabled the following default configuration (you can also replace the the whole configuration).
+The following information is important for setting up the SSH user access:
+
+- The user for requesting restore operations is required to be listed in the Windows administrator group
+- To allow individual keys for the account make sure to disable the following default configuration
+- Even the user is an administrator, the user will not be able to log-in interactively if you don't set a password
+- The user is only running the restore command invoking the PowerShell script. No interactive login is required
+- Ensure the following settings are not enabled to allow individual SSH keys for each admin account needed
 
 ```
 # Match Group administrators
