@@ -164,13 +164,19 @@ cat id_rsa.pub >> authorized_keys
 chmod 600 authorized_keys
 ```
 
+Tip: An easy way to test if the key can remotely login, is to use it on the local machine via.
+
+```
+ssh 12.7.0.0.1
+```
+
 ### Create SSH key for notes user
 
-Login with the `notes` user and run the following command to create a ED25519 key.  
+Login with the `notes` user and run the following command to create a RSA key.  
 The key will be used for SSH connections from Linux to the OpenSSH server installed on the Veeam server.
 
 ```
-ssh-keygen -t ed25519
+ssh-keygen -t rsa -m pem
 ```
 
 Confirm the location of the key. The key should not have a passphrase
@@ -178,36 +184,55 @@ Confirm the location of the key. The key should not have a passphrase
 The result look like the following output:
 
 ```
-Generating public/private ed25519 key pair.
-Enter file in which to save the key (/home/notes/.ssh/id_ed25519):
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/notes/.ssh/id_rsa):
 Created directory '/home/notes/.ssh'.
 Enter passphrase (empty for no passphrase):
-Your identification has been saved in /home/notes/.ssh/id_ed25519.
-Your public key has been saved in /home/notes/.ssh/id_ed25519.pub.
+Enter same passphrase again:
+Your identification has been saved in /home/notes/.ssh/id_rsa.
+Your public key has been saved in /home/notes/.ssh/id_rsa.pub.
 The key fingerprint is:
-SHA256:lWsOr0kwhXJEFxcooHl2W+XG9BG18pR425zYka5jT3o notes@jupiter.amce.loc
+SHA256:mk78rr/f0UCziYeWr9UNyFy5T8nOqeR0kanPw3J/H0k notes@acme.com
 The key's randomart image is:
-+--[ED25519 256]--+
-|    .oo oo=.oo.  |
-|   o ..o.* o o o.|
-|  o + +.o * + =o |
-|   o + + o . =++o|
-|      + S o  .o+o|
-|       o =    .  |
-|        . o  + . |
-|       . o  . =E |
-|        o    ... |
++---[RSA 3072]----+
+|                 |
+|               . |
+|            o o  |
+|           B *..+|
+|        S = O oE.|
+|     . o . o +==+|
+|      =     +++Bo|
+|     o .   ++o=+o|
+|      o+=oo .oooB|
 +----[SHA256]-----+
 ```
 
-Your key file `/home/notes/.ssh/id_ed25519` should look similar to the following line:
+Your key file `/home/notes/.ssh/id_rsa` should look similar to the following line:
 
 ```
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOxdxrII+d10+EmUAIOvbXJm/EFMAorfApm5VZc+GcxK notes@jupiter.amce.loc
+-----BEGIN RSA PRIVATE KEY-----
+MIIG4wIBAAKCAYEAuDnKa/WVCQND5sQTY3rl6sNGZjjpI0TohmE3tUoGhEFDzS5P
+...
+xxVYXpd9cfLAjfbV8/mU2w1YZOdopOEVseiRCJiM/xVRRQTfA5W9D2rxIze39/zg
+ysHnnj1jppKySQA3yhr8Scdu3Zr6eAIKh/46G0sQavaJUkqqtFA3
+-----END RSA PRIVATE KEY-----
 ```
 
-The public key is located in `/home/notes/.ssh/id_ed25519.pub` and is added in the next step to the `notes` user on your Veeam server.
+#### Add the authorized key for the notes user
 
+```
+cd ~/.ssh
+cat id_rsa.pub >> authorized_keys
+chmod 600 authorized_keys
+```
+
+Tip: An easy way to test if the key can remotely login, is to use it on the local machine via.
+
+```
+ssh 12.7.0.0.1
+```
+
+The public key is located in `/home/notes/.ssh/id_rsa.pub` and is added in the next step to the `notes` user on your Veeam server.
 
 ## Domino Server on Windows configuration
 
@@ -304,7 +329,8 @@ VEEAM_SERVER_SSH=notes@veeam-server.acme.loc
 
 ### Create SSH key for the system account or your Domino server user
 
-For Domino servers using the system account open a cmd.exe window in the following way
+For Domino servers using the system account open a cmd.exe window in the following way.
+Open a administrator cmd window and run the following command:
 
 ```
 PsExec.exe -ids cmd.exe
@@ -319,44 +345,44 @@ nt authority\system
 
 #### Create a new SSH key
 
-Create a ED25519 key to be used for the OpenSSH server.
+Create a RSA key to be used for connecting to the OpenSSH server.
 
 ```
-ssh-keygen -t ed25519
+ssh-keygen -t rsa
 ```
 
 Confirm the location of the key. The key should not have a passphrase
 
-The result look like the following output:
+The result looks like the following output:
 
 ```
-ssh-keygen -t ed25519
-Generating public/private ed25519 key pair.
-Enter file in which to save the key (C:\Windows\system32\config\systemprofile/.ssh/id_ed25519):
+ssh-keygen -t rsa
+Generating public/private rsa key pair.
+Enter file in which to save the key (C:\Windows\system32\config\systemprofile/.ssh/id_rsa):
+Created directory 'C:\Windows\system32\config\systemprofile/.ssh'.
 Enter passphrase (empty for no passphrase):
 Enter same passphrase again:
-Your identification has been saved in C:\Windows\system32\config\systemprofile/.ssh/id_ed25519.
-Your public key has been saved in C:\Windows\system32\config\systemprofile/.ssh/id_ed25519.pub.
+Your identification has been saved in C:\Windows\system32\config\systemprofile/.ssh/id_rsa.
+Your public key has been saved in C:\Windows\system32\config\systemprofile/.ssh/id_rsa.pub.
 The key fingerprint is:
-SHA256:dtDXNHAAAKbTo+ELKCOCzRs50jJYZfPcST1cQmqFZRs nt authority\system@win2022
+SHA256:TXLkRTChTxA0gg9hnAc53igRlVJYVjFQpeHwlkTHqyE nt authority\system@nsh-win11
 The key's randomart image is:
-+--[ED25519 256]--+
-|    + o.oBEo+o+  |
-|   o B o.*++ + . |
-|  . + = * o.. .  |
-|o* o + o . .     |
-|% O o   S .      |
-|+= = . . .       |
-|  . .            |
++---[RSA 3072]----+
+|  .B@%X=B.=+o    |
+|  +oO=.B.* o     |
+|   + B* o.=      |
+|  . E.+ .B       |
+|   . . oS o      |
+|      .          |
+|                 |
 |                 |
 |                 |
 +----[SHA256]-----+
 ```
 
-Your public file `C:\Windows\system32\config\systemprofile/.ssh/id_ed25519.pub` should look similar to the following line:
+Your public file `C:\Windows\system32\config\systemprofile/.ssh/id_rsa.pub` should look similar to the following line:
 
-```
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDbzFCivR8PwAafXLBx7n4JlaoNV6T97WXciAhBtYckR nt authority\system@win2022
+```HCL$dan2rock&&daoPHBaCCWbOsMS4tXtevv59dK1LGN6KlZ5DWDL6sJvMmvRTaZYXxsH2ebhldFKQC9d5QA23voNocr8gfmHcvJNzPH6nQSF2iO9IiC9ybHAUvAb5doAtLXlTziV+7ObfM6QyQ41KqwHL4kmjeYSvNVNnBUr5COmmvfzUULdP6OuEF+PQsSIQ09L8P2GqUrBXEORJoRv4wO9isI9ilbyiAIjMGzwNRdyl3Z4PHiUywFYbSnouWA6lZGm5MNPqdbRgKLo67EzVpZ5gJeUc= nt authority\system@acme-win2022
 ```
 
 The public key is added in Veeam configuration step to the `notes` user on your Veeam server.  
@@ -458,7 +484,7 @@ Create the file `C:\Users\notes\.ssh\authorized_keys` and add a line with the co
 The line also needs to contain the PowerShell command to restrict restrict OpenSSH access to the PowerShell script used for integration.
 
 ```
-command="powershell.exe c:/dominobackup/DominoRestore.ps1" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOxdxrII+d10+EmUAIOvbXJm/EFMAorfApm5VZc+GcxK notes@jupiter.amce.loc
+command="powershell.exe c:/dominobackup/DominoRestore.ps1" ssh-rsa AAAAB3NzaC1yc2EAAAADA  ... WA6lZGm5MNPqdbRgKLo67EzVpZ5gJeUc= notes@jupiter.amce.loc
 ```
 
 ### Add notes user to Veeam as Restore Operator
@@ -532,9 +558,9 @@ Confirm the following prompt:
 
 ```
 The authenticity of host 'veeam-server.acme.loc (veeam-server.acme.loc)' can't be established.
-ECDSA key fingerprint is SHA256:DepsvLuZPubqRgGr1J6AXu9B4DdtUrrMjRqX7V77IZc.
+RSA key fingerprint is SHA256:DepsvLuZPubqRgGr1J6AXu9B4DdtUrrMjRqX7V77IZc.
 Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-Warning: Permanently added 'veeam-server.acme.loc' (ECDSA) to the list of known hosts.
+Warning: Permanently added 'veeam-server.acme.loc' (RSA) to the list of known hosts.
 
 ```
 
