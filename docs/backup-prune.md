@@ -39,7 +39,7 @@ A workaround is to update the backup retention days field in the main tab before
 
 An alternate workaround is to remove the field from the code logic in the design of the action button.
 
-## Retention days for for integrations
+## Retention days for integrations
 
 The retention days are passed to other backup integrations to allow backup retention for external backup repositories or backups integrations to align backup retention between backup repositories and the database inventory and logs.  
 This option can be used if there is no direct integration option to prune backups and you want to pass backup retention information to the backup operation.
@@ -66,9 +66,21 @@ The operation is used for databases and delta files. The same type of logic is u
 For snapshot backups and full backup integrations pruning a full backup can make sense in most cases.  
 In this case, a `Prune backup command` can be configured to delete a full backup.
 
+
+### How prune works internally
+
+During backup a field `BackupRetentionDateTime` is calculated by the backup retention time currently configured is written.
+This field is used for the backup retention. For inventory documents there is a corresponding entry in the `List` field.
+
+In case of the missing wrong interpreted retention time, this data is not set and a prune will not work.
+
+A work-around in Domino 12.0 is to specify the retention time manually using the `-g <number of days>` option.
+This command-line option overwrites the field. This approach will only work for **new backups**.
+
+
 ### Domino 12.0.1 does not support a "Prune backup command" for "File" backup integrations
 
-Beginning with Domino 12.0.1 the `Prune backup command` cannot be used for `File` operations. An error is logged when trying to prune a complete backup with a `File` operation.  
+Beginning with Domino 12.0.1 the `Prune backup command` (prune complete backup with a directory delete file operation) cannot be used for `File` operations. An error is logged when trying to prune a complete backup with a `File` operation.  
 This change has been introduced in 12.0.1 to prevent unwanted deletes of the wrong folder if configured incorrectly.  
 Admins can replace the `Prune backup command` by specifying a `Prune DB command` to align it with the backup operation.  
 For file backup integration the backup, restore and prune formulas are usually the same.  
