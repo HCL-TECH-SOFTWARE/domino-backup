@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
-<!DOCTYPE database SYSTEM 'xmlschemas/domino_12_0.dtd'>
+<!DOCTYPE database SYSTEM 'xmlschemas/domino_11_0_1.dtd'>
 
 <!--
- Copyright 2021 HCL America, Inc.
+ Copyright 2021-2022 HCL America, Inc.
 
  Licensed to the Apache Software Foundation (ASF) under one or more
  contributor license agreements.  See the NOTICE file distributed with
@@ -20,26 +20,25 @@
  limitations under the License.
 -->
 
+
 <database xmlns='http://www.lotus.com/dxl' version='12.0' maintenanceversion='1.0'
- replicaid='C125877E006E7691' title='Domino Backup' fromtemplate='StdDominoBackup' allowbackgroundagents='false'
  increasemaxfields='true' copyprofiledocswithdesign='true' advancedtemplate='true'
  uselz1='true'>
-<databaseinfo dbid='C125877E006E7691' odsversion='52' diskspace='3932160'
- percentused='73.1901041666667' numberofdocuments='117'><datamodified><datetime
->20211114T172516,00+01</datetime></datamodified><designmodified><datetime
->20211114T172437,41+01</datetime></designmodified></databaseinfo>
+<databaseinfo dbid='C125877E006E7691' odsversion='52' diskspace='4456448'
+ percentused='64.2118566176471' numberofdocuments='130'><datamodified><datetime
+>20220226T191103,09+01</datetime></datamodified><designmodified><datetime
+>20220226T190723,65+01</datetime></designmodified></databaseinfo>
 <launchsettings><noteslaunch whenopened='openframeset' frameset='MainFrameset'/></launchsettings>
 <document form='ServerConfig'>
-<noteinfo noteid='906' unid='B9FE9027B9A8192A882587880073A7CD' sequence='10'>
-<created><datetime>20211109T130315,97-08</datetime></created>
-<modified><datetime>20211114T172431,32+01</datetime></modified>
-<revised><datetime>20211114T172431,31+01</datetime></revised>
-<lastaccessed><datetime>20211114T172431,31+01</datetime></lastaccessed>
-<addedtofile><datetime>20211109T131758,59-08</datetime></addedtofile></noteinfo>
-<revisions><datetime>20211109T130952,48-08</datetime><datetime>20211109T131758,59-08</datetime><datetime
->20211109T132422,66-08</datetime><datetime>20211109T140050,69-08</datetime><datetime
->20211112T113233,68+01</datetime><datetime>20211113T090322,90+01</datetime><datetime
->20211114T154657,29+01</datetime><datetime>20211114T172236,60+01</datetime></revisions>
+<noteinfo noteid='193a' unid='5DA8E3527449B3D6C125878D005A9A65' sequence='6'>
+<created><datetime>20211114T172937,65+01</datetime></created>
+<modified><datetime>20220226T191103,09+01</datetime></modified>
+<revised><datetime>20220226T191103,08+01</datetime></revised>
+<lastaccessed><datetime>20220226T191103,08+01</datetime></lastaccessed>
+<addedtofile><datetime>20211114T172937,63+01</datetime></addedtofile></noteinfo>
+<revisions><datetime>20211114T172937,63+01</datetime><datetime>20211130T181155,31+01</datetime><datetime
+>20220204T091450,39+01</datetime><datetime>20220204T104932,72+01</datetime><datetime
+>20220226T190713,66+01</datetime></revisions>
 <item name='ConfigName'><text/></item>
 <item name='Platform'><text>WINDOWS</text></item>
 <item name='ServerName' names='true'><text/></item>
@@ -53,7 +52,7 @@
 <par def='1'><run><font size='9pt' name='Helvetica Neue' pitch='variable'
  truetype='false' familyid='20'/></run></par></richtext></item>
 <item name='BackupDbCommand_Type'><text>fFILE</text></item>
-<item name='BackupTranslogCommand_Type'><text>fFILE</text></item>
+<item name='BackupTranslogCommand_Type'><text/></item>
 <item name='BackupPreCommand_Type'><text/></item>
 <item name='BackupPostCommand_Type'><text>sCMD</text></item>
 <item name='BackupDisableDirectApply'><text/></item>
@@ -69,7 +68,7 @@
 <item name='SnapshotOkString'><text/></item>
 <item name='SnapshotErrString'><text>Return: ERROR</text></item>
 <item name='RestoreDbCommand_Type'><text>fFILE</text></item>
-<item name='RestoreTranslogCommand_Type'><text>fFILE</text></item>
+<item name='RestoreTranslogCommand_Type'><text/></item>
 <item name='RestoreSnapshotCommand_Type'><text>sCMD</text></item>
 <item name='RestorePreCommand_Type'><text/></item>
 <item name='RestorePostCommand_Type'><text>sCMD</text></item>
@@ -78,8 +77,8 @@
 <item name='RestoreDaosCommand_Type'><text/></item>
 <item name='RestoreDaosSingleFile'><text/></item>
 <item name='PruneBackupCommand_Type'><text/></item>
-<item name='PruneDbCommand_Type'><text>fFILE</text></item>
-<item name='PruneTranslogCommand_Type'><text>fFILE</text></item>
+<item name='PruneDbCommand_Type'><text/></item>
+<item name='PruneTranslogCommand_Type'><text/></item>
 <item name='PruneSnapshotCommand_Type'><text/></item>
 <item name='PruneOkString'><text/></item>
 <item name='PruneErrString'><text/></item>
@@ -107,22 +106,22 @@
 <item name='BackupTargetDirFile'><text/></item>
 <item name='BackupTargetDelta'><text/></item>
 <item name='BackupDbCommand'><text>BackupTargetDir + {\\} + BackupNode + {\\} + BackupMode + {\\} + BackupDateTime + {\\} + FileName</text></item>
-<item name='BackupTranslogCommand'><text>BackupTargetDir + {\\} + BackupNode + {\\} + BackupReference + {\\} + FileName</text></item>
+<item name='BackupTranslogCommand'><text/></item>
 <item name='BackupPreCommand'><text/></item>
 <item name='BackupPostCommand'><text>backup_post.cmd 2&gt;&amp;1</text></item>
 <item name='BackupSnapshotStartCommand'><text>backup_snapshot_start.cmd 2&gt;&amp;1</text></item>
 <item name='BackupSnapshotCommand'><text>backup_snapshot.cmd 2&gt;&amp;1</text></item>
 <item name='RestoreDbCommand'><text>BackupTargetDir + {\\} + BackupNode + {\\} + BackupMode + {\\} + BackupDateTime + {\\} + FileName</text></item>
-<item name='RestoreTranslogCommand'><text>BackupTargetDir + {\\} + BackupNode + {\\} + BackupReference + {\\} + FileName</text></item>
+<item name='RestoreTranslogCommand'><text/></item>
 <item name='RestoreSnapshotCommand'><text>restore_db.cmd 2&gt;&amp;1</text></item>
 <item name='RestorePreCommand'><text/></item>
 <item name='RestorePostCommand'><text>restore_post.cmd 2&gt;&amp;1</text></item>
 <item name='RestoreDaosCommand'><text/></item>
 <item name='BackupTargetDirDaos'><text/></item>
 <item name='PruneBackupCommand'><text/></item>
-<item name='PruneDbCommand'><text>BackupTargetDir + {\\} + BackupNode + {\\} + BackupMode + {\\} + BackupDateTime + {\\} + FileName</text></item>
-<item name='PruneTranslogCommand'><text>BackupTargetDir + {\\} + BackupNode + {\\} + BackupReference + {\\} + FileName</text></item>
-<item name='PruneSnapshotCommand'><text/></item>
+<item name='PruneDbCommand'><text/></item>
+<item name='PruneTranslogCommand'><text/></item>
+<item name='PruneSnapshotCommand'><text>prune_snapshot.cmd 2&gt;&amp;1</text></item>
 <item name='NotificationLevel'><textlist><text>E</text><text>W</text></textlist></item>
 <item name='NotificationAppendDoc'><text/></item></document>
 </database>
