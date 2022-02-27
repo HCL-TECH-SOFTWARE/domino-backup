@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE database SYSTEM 'xmlschemas/domino_11_0_1.dtd'>
+<database xmlns='http://www.lotus.com/dxl' version='11.0' maintenanceversion='1.0'
+ title='Domino Backup' fromtemplate='StdDominoBackup' allowbackgroundagents='false'
+ increasemaxfields='true' compressdesign='true' compressdata='true' copyprofiledocswithdesign='true'
+ uselz1='true'>
+<databaseinfo dbid='C1258780002ECAD9' odsversion='55' diskspace='2211840'
+ percentused='64.8842592592593' numberofdocuments='182'><datamodified><datetime
+>20220227T123140,58+01</datetime></datamodified><designmodified><datetime
+>20220125T010036,23+01</datetime></designmodified></databaseinfo>
+<launchsettings><noteslaunch whenopened='openframeset' frameset='MainFrameset'/></launchsettings>
+<document form='ServerConfig'>
+<noteinfo noteid='1596' unid='9E4731D4C05CFD8FC125879D0070554D' sequence='36'>
+<created><datetime>20211130T212658,69+01</datetime></created>
+<modified><datetime>20220227T123140,58+01</datetime></modified>
+<revised><datetime>20220227T123140,57+01</datetime></revised>
+<lastaccessed><datetime>20220227T123140,57+01</datetime></lastaccessed>
+<addedtofile><datetime>20211130T212658,79+01</datetime></addedtofile></noteinfo>
+<revisions><datetime>20220131T162132,29+01</datetime><datetime>20220223T182330,63+01</datetime><datetime
+>20220226T192336,80+01</datetime><datetime>20220226T192410,31+01</datetime><datetime
+>20220226T192649,89+01</datetime><datetime>20220226T192817,67+01</datetime><datetime
+>20220226T194306,56+01</datetime><datetime>20220226T194435,41+01</datetime><datetime
+>20220226T194442,87+01</datetime><datetime>20220226T194543,49+01</datetime><datetime
+>20220226T194723,73+01</datetime><datetime>20220227T122740,09+01</datetime></revisions>
+<item name='Config_BackupTargetDir'><text>c:\nshback\BackupFileCopy\DB</text></item>
+<item name='BackupPruneDays'><number>30</number></item>
+<item name='TransLogRecoverPath'><text/></item>
+<item name='BackupPreScript'><text/></item>
+<item name='BackupPostScript'><text/></item>
+<item name='BackupDisableDirectAppy'><text>1</text></item>
+<item name='BackupFileCommand'><text/></item>
+<item name='RestoreFileCommand'><text/></item>
+<item name='CheckBackupStartTime'><numberlist><number>22</number><number>0</number></numberlist></item>
+<item name='CheckBackupEndTime'><numberlist><number>6</number><number>0</number><number
+>0</number></numberlist></item>
+<item name='FileBackupLog'><text/></item>
+<item name='FileBackupPruneOkString'><text/></item>
+<item name='FileBackupPruneErrString'><text/></item>
+<item name='FileBackupResultFormula'><text>@if (@Ends(LogLine; ": Unchanged skipping"); "N"; @Ends(LogLine; ": Copied (new)"); "C"; @Ends(LogLine; ": Copied (replaced existing)"); "U"; @Ends(LogLine; ": Excluded"); "S"; @Contains(LogLine; "ERROR : "); "E"; @Contains(LogLine; "DEBUG : "); "X"; "Z")+"|"+LogLine</text></item>
+<item name='FileBackupStatusFormula'><text/></item>
+<item name='FormulaCommands'><textlist><text>formula:</text><text>file:</text><text
+>delete:</text></textlist></item>
+<item name='CheckBackupWeekDays'><textlist><text>1</text><text>2</text><text
+>3</text><text>4</text><text>5</text><text>6</text><text>7</text></textlist></item>
+<item name='FileBackupCommand'><text>formula: "xc:/rclone/rclone.exe sync " + DataDirectory +  " " + BackupTargetDir + OsSlash + BackupNode + " --ignore-case --exclude \"*.{ns*,ntf,box,lck}\" --exclude \"*.{ft}/**\" --retries 1 --low-level-retries 10 --transfers 1 --delete-before --fast-list -v -v 2&gt;&amp;1"</text></item>
+<item name='FileBackupPruneCommand'><text/></item>
+<item name='ConfigName'><text/></item>
+<item name='Platform'><text>LINUX</text></item>
+<item name='ServerName' names='true'><text/></item>
+<item name='NodeName'><text/></item>
+<item name='ExcludedDatabases'><text/></item>
+<item name='BackupRetentionDays'><number>7</number></item>
+<item name='LogCommandOutputOptions'><text>A</text></item>
+<item name='Description'><text>S3 Minio Linux</text></item>
+<item name='Comments'><richtext>
+<pardef id='1' leftmargin='0.1264in' tabs='L2.1875in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='1'><run><font size='8pt'/></run></par></richtext></item>
+<item name='BackupDbCommand_Type'><text>fCMD</text></item>
+<item name='BackupTranslogCommand_Type'><text>fCMD</text></item>
+<item name='BackupPreCommand_Type'><text/></item>
+<item name='BackupPostCommand_Type'><text/></item>
+<item name='BackupDisableDirectApply'><text>1</text></item>
+<item name='BackupLog'><text>3</text></item>
+<item name='BackupOkString'><text>Transferred:</text></item>
+<item name='BackupErrString'><text>&lt;ERROR&gt;</text></item>
+<item name='BackupSnapshotMode'><text/></item>
+<item name='BackupSnapshotStartCommand_Type'><text/></item>
+<item name='BackupSnapshotCommand_Type'><text/></item>
+<item name='BackupSnapshotFileList'><text>0</text></item>
+<item name='SnapshotStartOkString'><text/></item>
+<item name='SnapshotStartErrString'><text/></item>
+<item name='SnapshotOkString'><text/></item>
+<item name='SnapshotErrString'><text/></item>
+<item name='RestoreDbCommand_Type'><text>fCMD</text></item>
+<item name='RestoreTranslogCommand_Type'><text>fCMD</text></item>
+<item name='RestoreSnapshotCommand_Type'><text/></item>
+<item name='RestorePreCommand_Type'><text/></item>
+<item name='RestorePostCommand_Type'><text/></item>
+<item name='RestoreOkString'><text>Transferred:</text></item>
+<item name='RestoreErrString'><text>&lt;ERROR&gt;</text></item>
+<item name='RestoreDaosCommand_Type'><text/></item>
+<item name='RestoreDaosSingleFile'><text/></item>
+<item name='PruneBackupCommand_Type'><text/></item>
+<item name='PruneDbCommand_Type'><text>fCMD</text></item>
+<item name='PruneTranslogCommand_Type'><text>fCMD</text></item>
+<item name='PruneSnapshotCommand_Type'><text/></item>
+<item name='PruneOkString'><text/></item>
+<item name='PruneErrString'><text>&lt;ERROR&gt;</text></item>
+<item name='BackupNotificationFormula'><text>LocalDomainAdmins</text></item>
+<item name='BackupStatusFormula'><text/></item>
+<item name='NotificationFrom' names='true'><text/></item>
+<item name='NotificationInetFrom' names='true'><text/></item>
+<item name='BackupReportAgentFormula'><text/></item>
+<item name='BackupResultString'><text/></item>
+<item name='BackupRefString'><text/></item>
+<item name='NotificationForm'><text/></item>
+<item name='NotificationFormTranslog'><text/></item>
+<item name='DbTitleFormula'><text>{Restored - } + Title</text></item>
+<item name='BackupKeepEmptyDeltaFiles'><text/></item>
+<item name='ThirdPartyRestoreDateFormula'><text/></item>
+<item name='Body'><richtext>
+<pardef id='2' tabs='L2.1250in'/>
+<par def='2'><run><font size='9pt' name='Helvetica Neue' pitch='variable'
+ truetype='false' familyid='20'/></run></par></richtext></item>
+<item name='Status'><text>0</text></item>
+<item name='ConfigType'><text>D</text></item>
+<item name='BackupTargetDirDb'><text>domino-minio-s3/domino-backup/nsf</text></item>
+<item name='BackupTargetDirTranslog'><text>domino-minio-s3/domino-backup/translog</text></item>
+<item name='BackupLogDir'><text>/local/backup/log</text></item>
+<item name='ScriptDir'><text>/local/notesdata/scripts</text></item>
+<item name='BackupTargetDirFile'><text>c:\backuptest\notesdata</text></item>
+<item name='BackupTargetDelta'><text/></item>
+<item name='BackupDbCommand'><text>x:= "/"; q:={"}; ScriptDir + x + "mc -q cp " + q + PhysicalFileName + q + " " + q + BackupTargetDir + x + BackupNode + x + BackupMode + x + BackupDateTime + x + FileName + q +" 2&gt;&amp;1"</text></item>
+<item name='BackupTranslogCommand'><text>x:= "/"; q:={"}; ScriptDir + x + "mc -q cp " + q + PhysicalFileName + q + " " + q+ BackupTargetDir + x + BackupNode + x + BackupReference + x + FileName + q +" 2&gt;&amp;1"</text></item>
+<item name='BackupPreCommand'><text/></item>
+<item name='BackupPostCommand'><text/></item>
+<item name='BackupSnapshotStartCommand'><text/></item>
+<item name='BackupSnapshotCommand'><text/></item>
+<item name='RestoreDbCommand'><text>x:= "/"; q:={"}; ScriptDir + x + "mc -q cp " + q + BackupTargetDir + x + BackupNode + x + BackupMode + x + BackupDateTime + x + FileName + q + " " + q + RestoreFileName + q +" 2&gt;&amp;1"</text></item>
+<item name='RestoreTranslogCommand'><text>x:= "/"; q:={"}; ScriptDir + x + "mc -q cp " + q + BackupTargetDir + x + BackupNode + x + BackupReference + x + FileName + q + " " + q + RestoreFileName + q +" 2&gt;&amp;1"</text></item>
+<item name='RestoreSnapshotCommand'><text/></item>
+<item name='RestorePreCommand'><text/></item>
+<item name='RestorePostCommand'><text/></item>
+<item name='RestoreDaosCommand'><text/></item>
+<item name='BackupTargetDirDaos'><text/></item>
+<item name='PruneBackupCommand'><text/></item>
+<item name='PruneDbCommand'><text>x:= "/"; q:={"}; ScriptDir + x + "mc -q rm " + q + BackupTargetDir + x + BackupNode + x + BackupMode + x + BackupDateTime + x + FileName + q +" 2&gt;&amp;1"</text></item>
+<item name='PruneTranslogCommand'><text>x:= "/"; q:={"}; ScriptDir + x + "mc -q rm " + q + BackupTargetDir + x + BackupNode + x + BackupReference + x + FileName + q + " 2&gt;&amp;1"</text></item>
+<item name='PruneSnapshotCommand'><text/></item>
+<item name='NotificationLevel'><textlist><text>E</text><text>W</text></textlist></item>
+<item name='NotificationAppendDoc'><text>1</text></item></document>
+</database>
+
