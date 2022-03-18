@@ -25,14 +25,14 @@
 
 # Version 1.0.1 18.03.2022
 #
-# - Fixed a timezone issue when searching for backup.
-#   When searching for a backup the time needs to be CreationTimeUtc not CreationTime.
-#   Powershell does not automatically convert timezones.
+# Now using UTC to search converting the timedate string.
+# There is a UTC date in Veeam backup to search for.
+# This ensures international consistence and makes it easier to troubleshoot if everything is in UTC.
 #
 
 # Commands:
 
-# mount    : mounts a specified restore point. exmaple: "mount 20210601082959"
+# mount    : mounts a specified restore point. example: "mount 20210601082959"
 # unmount  : unmounts all restore points for requesting server
 # check    : check configuration - also invoked from remote via SSH
 
@@ -49,7 +49,7 @@ $RestoreClockSkewMinutes = 5
 $RestoreCommand = -split $Env:SSH_ORIGINAL_COMMAND | select -first 1
 $RestoreTarget  = -split $Env:SSH_CONNECTION | select -first 1
 
-# Validate paramters
+# Validate parameters
 
 if ( $RestoreCommand -eq "mount" )
 {
@@ -203,9 +203,10 @@ if ([string]::IsNullOrEmpty($OrigDominoBackupTime))
   return 1
 }
 
-$DominoBackupTime = $OrigDominoBackupTime.AddMinutes(-$RestoreClockSkewMinutes)
+$DominoBackupTimeUtc = $OrigDominoBackupTime.ToUniversalTime()
+$BackupSearchTimeUtc = $DominoBackupTimeUtc.AddMinutes(-$RestoreClockSkewMinutes)
 
-if ([string]::IsNullOrEmpty($DominoBackupTime))
+if ([string]::IsNullOrEmpty($BackupSearchTimeUtc))
 {
   Write-Host "Error: Cannot convert timedate"
   return 1
@@ -213,15 +214,15 @@ if ([string]::IsNullOrEmpty($DominoBackupTime))
 
 Write-Host "Backup Time String       : $RestoreDate"
 Write-Host "Backup Time (local time) : $OrigDominoBackupTime"
-Write-Host "Backup Search Time       : $DominoBackupTime"
+Write-Host "Backup Time (UTC)        : $DominoBackupTimeUtc"
+Write-Host "Backup Search Time UTC   : $BackupSearchTimeUtc"
 Write-Host "RestoreVmHost            : $RestoreVmHost"
 Write-Host "Credentials used:        : $TargetAdminCreds"
 Write-Host
 
-
 $BeforeSearch = Get-Date
 
-$RestorePoint = Get-VBRRestorePoint | Where-Object{ ($_.VMname -eq $RestoreVmHost) -and ($_.CreationTimeUtc -gt $DominoBackupTime)} | sort CreationTimeUtc |  Select-Object -First 1
+$RestorePoint = Get-VBRRestorePoint | Where-Object{ ($_.VMname -eq $RestoreVmHost) -and ($_.CreationTimeUtc -gt $BackupSearchTimeUtc)} | sort CreationTimeUtc |  Select-Object -First 1
 
 $AfterSearch = Get-Date
 $Duration = $AfterSearch - $BeforeSearch
@@ -239,7 +240,7 @@ if ( @($RestorePoint).Count -eq 1 )
 {
   $BeforeMount = Get-Date
 
-  Write-Host $BeforeMount.ToString() "Mounting backup restore point: " $RestorePoint.ID " Backup Time UTC: " $RestorePoint.CreationTimeUtc
+  Write-Host $BeforeMount.ToString() "Mounting backup restore point: " $RestorePoint.ID " Backup Time Local: " $RestorePoint.CreationTime " Backup Time UTC: " $RestorePoint.CreationTimeUtc
 
   if ($MountFUSE)
   {
@@ -253,7 +254,7 @@ if ( @($RestorePoint).Count -eq 1 )
   $AfterMount = Get-Date
   $Duration = $AfterMount - $BeforeMount
 
-  Write-Host $AfterMount.ToString() "Mount operation fishined (" $Duration.TotalSeconds.ToString("0.0") "seconds )"
+  Write-Host $AfterMount.ToString() "Mount operation finished (" $Duration.TotalSeconds.ToString("0.0") "seconds )"
   Write-Host
 }
 else
