@@ -251,7 +251,7 @@ Copy the backup scripts from the `domino\windows` directory to the `c:\dominobac
 ```
 cd \D c:\
 mkdir c:\dominobackup\veeam
-copy veeam/domino/windows c:\dominobackup\veeam
+copy veeam\domino\windows c:\dominobackup\veeam
 ```
 
 The following files are copied

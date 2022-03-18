@@ -3,7 +3,7 @@
 # Domino Backup Restore mount and unmount command for Windows and Linux
 # ----------------------------------------------------------------------
 
-# Copyright 2021 HCL America, Inc.
+# Copyright 2021-2022 HCL America, Inc.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -22,6 +22,13 @@
 # specific language governing permissions and limitations
 # under the License.
 # ----------------------------------------------------------------------
+
+# Version 1.0.1 18.03.2022
+#
+# - Fixed a timezone issue when searching for backup.
+#   When searching for a backup the time needs to be CreationTimeUtc not CreationTime.
+#   Powershell does not automatically convert timezones.
+#
 
 # Commands:
 
@@ -214,7 +221,7 @@ Write-Host
 
 $BeforeSearch = Get-Date
 
-$RestorePoint = Get-VBRRestorePoint | Where-Object{ ($_.VMname -eq $RestoreVmHost) -and ($_.CreationTime -gt $DominoBackupTime)} | sort CreationTime |  Select-Object -First 1
+$RestorePoint = Get-VBRRestorePoint | Where-Object{ ($_.VMname -eq $RestoreVmHost) -and ($_.CreationTimeUtc -gt $DominoBackupTime)} | sort CreationTimeUtc |  Select-Object -First 1
 
 $AfterSearch = Get-Date
 $Duration = $AfterSearch - $BeforeSearch
