@@ -382,7 +382,8 @@ The key's randomart image is:
 
 Your public file `C:\Windows\system32\config\systemprofile/.ssh/id_rsa.pub` should look similar to the following line:
 
-```HCL$dan2rock&&daoPHBaCCWbOsMS4tXtevv59dK1LGN6KlZ5DWDL6sJvMmvRTaZYXxsH2ebhldFKQC9d5QA23voNocr8gfmHcvJNzPH6nQSF2iO9IiC9ybHAUvAb5doAtLXlTziV+7ObfM6QyQ41KqwHL4kmjeYSvNVNnBUr5COmmvfzUULdP6OuEF+PQsSIQ09L8P2GqUrBXEORJoRv4wO9isI9ilbyiAIjMGzwNRdyl3Z4PHiUywFYbSnouWA6lZGm5MNPqdbRgKLo67EzVpZ5gJeUc= nt authority\system@acme-win2022
+```
+HCL$dan2rock&&daoPHBaCCWbOsMS4tXtevv59dK1LGN6KlZ5DWDL6sJvMmvRTaZYXxsH2ebhldFKQC9d5QA23voNocr8gfmHcvJNzPH6nQSF2iO9IiC9ybHAUvAb5doAtLXlTziV+7ObfM6QyQ41KqwHL4kmjeYSvNVNnBUr5COmmvfzUULdP6OuEF+PQsSIQ09L8P2GqUrBXEORJoRv4wO9isI9ilbyiAIjMGzwNRdyl3Z4PHiUywFYbSnouWA6lZGm5MNPqdbRgKLo67EzVpZ5gJeUc= nt authority\system@acme-win2022
 ```
 
 The public key is added in Veeam configuration step to the `notes` user on your Veeam server.  
