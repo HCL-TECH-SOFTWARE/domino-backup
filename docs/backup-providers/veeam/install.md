@@ -488,6 +488,14 @@ The line also needs to contain the PowerShell command to restrict restrict OpenS
 command="powershell.exe c:/dominobackup/DominoRestore.ps1" ssh-rsa AAAAB3NzaC1yc2EAAAADA  ... WA6lZGm5MNPqdbRgKLo67EzVpZ5gJeUc= notes@jupiter.amce.loc
 ```
 
+Note: In case your Windows server does not allow to execute unsinged scripts, either sign the script according to Microsoft documentation or exlicitly run the script bypassing the execution policity. It is not recommended to generally change the policy to allow execution of all unsigned scripts.
+
+To allow a single script to bypass the policy change the invoked command to line smiliar to shown below:
+
+```
+command="powershell.exe -noprofile -executionpolicy bypass -file c:/dominobackup/DominoRestore.ps1" ssh-rsa AAAAB3NzaC1yc2EAAAADA  ... WA6lZGm5MNPqdbRgKLo67EzVpZ5gJeUc= notes@jupiter.amce.loc
+```
+
 ### Add notes user to Veeam as Restore Operator
 
 - In the Veeam Backup and Replication client, open `User and Roles` from the menu in the upper left corner.
@@ -532,6 +540,11 @@ The configuration contains the following information:
 
 ]
 ```
+
+Tip: Depending on your configuration the `VmHost` can be a different name. You need to make sure the IpAddress matches the name referenced for the Domino instance. In case you are not sure which name to use, open a Powershell prompt on your Veeam server to find backups via `Get-VBRRestorePoint` command. Depending on the size of your environment you might want to narrow down the search. Each backup references the name, leveraged by the PowerShell script mounting the snapshot.
+
+Check the Veeam (Powershell Command reference Get-VBRRestorePoint)[https://helpcenter.veeam.com/docs/backup/powershell/get-vbrrestorepoint.html] for details.
+
 
 ### Test veeam-mount user access
 
