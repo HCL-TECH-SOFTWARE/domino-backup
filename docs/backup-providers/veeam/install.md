@@ -541,9 +541,11 @@ The configuration contains the following information:
 ]
 ```
 
-Tip: Depending on your configuration the `VmHost` can be a different name. You need to make sure the IpAddress matches the name referenced for the Domino instance. In case you are not sure which name to use, open a Powershell prompt on your Veeam server to find backups via `Get-VBRRestorePoint` command. Depending on the size of your environment you might want to narrow down the search. Each backup references the name, leveraged by the PowerShell script mounting the snapshot.
+#### Tip finding VmHost names
 
-Check the Veeam (Powershell Command reference Get-VBRRestorePoint)[https://helpcenter.veeam.com/docs/backup/powershell/get-vbrrestorepoint.html] for details.
+Depending on your configuration the `VmHost` can be a different name. You need to make sure the IpAddress matches the name referenced for the Domino instance. In case you are not sure which name to use, open a Powershell prompt on your Veeam server to find backups via `Get-VBRRestorePoint` command. Depending on the size of your environment you might want to narrow down the search. Each backup references the name, leveraged by the PowerShell script mounting the snapshot.
+
+Check the Veeam [Powershell Command reference Get-VBRRestorePoint](https://helpcenter.veeam.com/docs/backup/powershell/get-vbrrestorepoint.html) for details.
 
 
 ### Test veeam-mount user access
