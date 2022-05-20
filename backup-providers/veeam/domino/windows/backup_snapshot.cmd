@@ -78,9 +78,6 @@ set /a count = 1
   REM wait for 1 second -- timeout command cannot be used in background. ping is a well known workaround
   ping -n 2 -w 1 127.0.0.1 > nul
 
-  echo [%DATE% %TIME%] TEST3
-
-
 goto LOOP
 
   echo [%DATE% %TIME%] TEST4
