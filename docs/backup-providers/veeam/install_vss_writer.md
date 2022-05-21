@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Domino 12.0.2 Veeam"
+title: "Domino 12.0.2 Win Veeam"
 nav_order: 4
 parent: Veeam
 grand_parent: "Backup Providers"
