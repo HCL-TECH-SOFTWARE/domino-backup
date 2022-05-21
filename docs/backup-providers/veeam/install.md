@@ -67,7 +67,7 @@ The following files are copied
 - **restore_db.sh**  
   Restore script for requesting database restores from Veeam.  
   This script mounts the backup and copies over databases back to Domino as reuqested by the administrator.
-- **restore_restore.sh**  
+- **restore_post.sh**  
   Post restore script to unmount Veeam mounts used during restore operations.  
 
 ### Configure the restore script
@@ -270,7 +270,7 @@ The following files are copied
 - **restore_db.cmd**  
   Restore script for requesting database restores from Veeam.  
   This script mounts the backup and copies over databases back to Domino as requested by the administrator.
-- **restore_restore.cmd**  
+- **restore_post.cmd**  
   Post restore script to unmount Veeam mounts used during restore operations.  
 
 
