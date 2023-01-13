@@ -67,7 +67,7 @@ The following files are copied
 - **restore_db.sh**  
   Restore script for requesting database restores from Veeam.  
   This script mounts the backup and copies over databases back to Domino as reuqested by the administrator.
-- **restore_restore.sh**  
+- **restore_post.sh**  
   Post restore script to unmount Veeam mounts used during restore operations.  
 
 ### Configure the restore script
@@ -229,7 +229,7 @@ chmod 600 authorized_keys
 Tip: An easy way to test if the key can remotely login, is to use it on the local machine via.
 
 ```
-ssh 12.7.0.0.1
+ssh 127.0.0.1
 ```
 
 The public key is located in `/home/notes/.ssh/id_rsa.pub` and is added in the next step to the `notes` user on your Veeam server.
@@ -270,7 +270,7 @@ The following files are copied
 - **restore_db.cmd**  
   Restore script for requesting database restores from Veeam.  
   This script mounts the backup and copies over databases back to Domino as requested by the administrator.
-- **restore_restore.cmd**  
+- **restore_post.cmd**  
   Post restore script to unmount Veeam mounts used during restore operations.  
 
 
@@ -359,31 +359,30 @@ The result looks like the following output:
 ssh-keygen -t rsa
 Generating public/private rsa key pair.
 Enter file in which to save the key (C:\Windows\system32\config\systemprofile/.ssh/id_rsa):
-Created directory 'C:\Windows\system32\config\systemprofile/.ssh'.
 Enter passphrase (empty for no passphrase):
 Enter same passphrase again:
 Your identification has been saved in C:\Windows\system32\config\systemprofile/.ssh/id_rsa.
 Your public key has been saved in C:\Windows\system32\config\systemprofile/.ssh/id_rsa.pub.
 The key fingerprint is:
-SHA256:TXLkRTChTxA0gg9hnAc53igRlVJYVjFQpeHwlkTHqyE nt authority\system@nsh-win11
+SHA256:cjy6nZc7MtlBf2CkwoLyaNCrykQo2Iz/ILvQQCd9GHw nt authority\system@WIN-BS7M1PB2KQE
 The key's randomart image is:
 +---[RSA 3072]----+
-|  .B@%X=B.=+o    |
-|  +oO=.B.* o     |
-|   + B* o.=      |
-|  . E.+ .B       |
-|   . . oS o      |
-|      .          |
-|                 |
-|                 |
-|                 |
+|  ..             |
+|  ..oE      .    |
+| + +.o .   o     |
+|=+= o ..o o o    |
+|*oo=  ..So o .   |
+|o++ .  + .. . .  |
+|o++   .  o o .   |
+|=o o   o+.=      |
+|=o  . . o+.o     |
 +----[SHA256]-----+
 ```
 
-Your public file `C:\Windows\system32\config\systemprofile/.ssh/id_rsa.pub` should look similar to the following line:
+Your public file `C:\Windows\system32\config\systemprofile\.ssh\id_rsa.pub` should look similar to the following line:
 
 ```
-HCL$dan2rock&&daoPHBaCCWbOsMS4tXtevv59dK1LGN6KlZ5DWDL6sJvMmvRTaZYXxsH2ebhldFKQC9d5QA23voNocr8gfmHcvJNzPH6nQSF2iO9IiC9ybHAUvAb5doAtLXlTziV+7ObfM6QyQ41KqwHL4kmjeYSvNVNnBUr5COmmvfzUULdP6OuEF+PQsSIQ09L8P2GqUrBXEORJoRv4wO9isI9ilbyiAIjMGzwNRdyl3Z4PHiUywFYbSnouWA6lZGm5MNPqdbRgKLo67EzVpZ5gJeUc= nt authority\system@acme-win2022
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCwJnDDLtRLbz4x4n12ticC4vEQLCohFnvihpkiJ6ak1xJDGl3wbNKtyn6yJ3rrZ8xigyGzDH7mFe/0gxTAw9xlR4wPE3BEY7b2ejt9mvxbumNr+UhxlFclgsYO/YNGXd8J+I4eOIpXvu7F5zfPfU0ZAv4b9J+GsSP6UPDeNhToqpm0KnLsgQiCazSmzNYofSgrvRcqST8Cr+TBG7oEnSeoQX1BSyXhw7pe3BtATDt2BBypBdSOkxr+Q1zh6MCG5ilATB2hEo2KG/pe0XOv2FITKlmeOD/XzwVcEAHbX3zRfM+y6Y8tkCWY3cmK6k1laBM7yLNyAmtQjHnY0r40o1BLAQP3MbReFkB8T+AvS4fd4CJHapA6MXuSl4Ksu0lrl0IqHd6EHiXNCK1xKsfHY/WJeg0f6p2gKfWvS2PElJSUgntM5xUfFYu1V4BzY+Hwo7cwbl7IQe/XfqfyRCFeubTU5tEAopI0kYznweXK33wXhD23DzsnrI1Q9gWgWlRcG3E= nt authority\system@WIN-BS7M1PB2KQE
 ```
 
 The public key is added in Veeam configuration step to the `notes` user on your Veeam server.  
@@ -404,22 +403,17 @@ The directory contains the following files
 
 ### Setup OpenSSH server
 
-The minimum required version for the OpenSSL server is **OpenSSH_for_Windows_8.1p1, LibreSSL 3.0.2** (first included in Windows 2022).  
+The integration uses a SSH connection between the Domino an the Veeam server.  
+The following documentation describes the setup setups for a basic OpenSSH server configuration to allow SSH key authentication.  
+Consult your system administrator for further configurations steps required in your environment.
+
+The minimum required version for the OpenSSH server is **OpenSSH_for_Windows_8.1p1, LibreSSL 3.0.2** (first included in Windows 2022).  
 The OpensSSH server was first shipped with Windows 2019, but needs to be updated at least to version 8.1 manually (Windows updated does not update OpenSSH).  
 
-In general it is recommended to use the latest stable version provided by Microsoft in their official repository.  
-The latest available stable version is **OpenSSH_for_Windows_8.6p1, LibreSSL 3.3.3 (26.05.2021)**.
+In general it is recommended to use the latest stable version provided by Microsoft in their official GitHub repository.  
 
-Refer to [OpenSSH official Microsoft documentation](https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse) to install the OpenSSL server.  
-The most convenient option is to install and enable the OpenSSH server using PowerShell as described in the referenced documentation.
-
-After installation perform the following steps to update OpenSSH client and server to the latest available stable release:
-
-- Download the files form the [OpenSSH PowerShell release page] (https://github.com/PowerShell/Win32-OpenSSH/releases).  
-
-- Make sure the OpenSSH service is not running
-- Replace the files in `C:\Windows\System32\OpenSSH`.
-
+- Download and install via MSI installer from [OpenSSH PowerShell release page](https://github.com/PowerShell/Win32-OpenSSH/releases).  
+- Example file name: **OpenSSH-Win64-v8.9.1.0.msi**
 - Verify your are running at least version **OpenSSH 8.1** by running `sshd -V` and `sshd -?` (there is no official option but an invalid option prints help including the version).
 
 After installing the OpenSSH server make sure the OpenSSH server configuration is updated with the following configuration, start the OpenSSH service and ensure it is set to start automatically.
@@ -450,6 +444,15 @@ The following information is important for setting up the SSH user access:
 # Match Group administrators
 #        AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys
 ```
+
+### Restart OpenSSH server
+
+After the configuration change is saved, restart the OpenSSH server:
+
+```
+powershell -command "Restart-Service sshd"
+```
+
 
 ### Create a local user "notes" to be used for Domino server requests over SSH
 
@@ -485,7 +488,7 @@ Create the file `C:\Users\notes\.ssh\authorized_keys` and add a line with the co
 The line also needs to contain the PowerShell command to restrict restrict OpenSSH access to the PowerShell script used for integration.
 
 ```
-command="powershell.exe c:/dominobackup/DominoRestore.ps1" ssh-rsa AAAAB3NzaC1yc2EAAAADA  ... WA6lZGm5MNPqdbRgKLo67EzVpZ5gJeUc= notes@jupiter.amce.loc
+command="powershell.exe c:/dominobackup/DominoRestore.ps1" ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCwJnDDLtRLbz4x4n12ticC4vEQLCohFnvihpkiJ6ak1xJDGl3wbNKtyn6yJ3rrZ8xigyGzDH7mFe/0gxTAw9xlR4wPE3BEY7b2ejt9mvxbumNr+UhxlFclgsYO/YNGXd8J+I4eOIpXvu7F5zfPfU0ZAv4b9J+GsSP6UPDeNhToqpm0KnLsgQiCazSmzNYofSgrvRcqST8Cr+TBG7oEnSeoQX1BSyXhw7pe3BtATDt2BBypBdSOkxr+Q1zh6MCG5ilATB2hEo2KG/pe0XOv2FITKlmeOD/XzwVcEAHbX3zRfM+y6Y8tkCWY3cmK6k1laBM7yLNyAmtQjHnY0r40o1BLAQP3MbReFkB8T+AvS4fd4CJHapA6MXuSl4Ksu0lrl0IqHd6EHiXNCK1xKsfHY/WJeg0f6p2gKfWvS2PElJSUgntM5xUfFYu1V4BzY+Hwo7cwbl7IQe/XfqfyRCFeubTU5tEAopI0kYznweXK33wXhD23DzsnrI1Q9gWgWlRcG3E=
 ```
 
 Note: In case your Windows server does not allow to execute unsinged scripts, either sign the script according to Microsoft documentation or exlicitly run the script bypassing the execution policity. It is not recommended to generally change the policy to allow execution of all unsigned scripts.
@@ -493,7 +496,7 @@ Note: In case your Windows server does not allow to execute unsinged scripts, ei
 To allow a single script to bypass the policy change the invoked command to line smiliar to shown below:
 
 ```
-command="powershell.exe -noprofile -executionpolicy bypass -file c:/dominobackup/DominoRestore.ps1" ssh-rsa AAAAB3NzaC1yc2EAAAADA  ... WA6lZGm5MNPqdbRgKLo67EzVpZ5gJeUc= notes@jupiter.amce.loc
+command="powershell.exe -noprofile -executionpolicy bypass -file c:/dominobackup/DominoRestore.ps1" ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCwJnDDLtRLbz4x4n12ticC4vEQLCohFnvihpkiJ6ak1xJDGl3wbNKtyn6yJ3rrZ8xigyGzDH7mFe/0gxTAw9xlR4wPE3BEY7b2ejt9mvxbumNr+UhxlFclgsYO/YNGXd8J+I4eOIpXvu7F5zfPfU0ZAv4b9J+GsSP6UPDeNhToqpm0KnLsgQiCazSmzNYofSgrvRcqST8Cr+TBG7oEnSeoQX1BSyXhw7pe3BtATDt2BBypBdSOkxr+Q1zh6MCG5ilATB2hEo2KG/pe0XOv2FITKlmeOD/XzwVcEAHbX3zRfM+y6Y8tkCWY3cmK6k1laBM7yLNyAmtQjHnY0r40o1BLAQP3MbReFkB8T+AvS4fd4CJHapA6MXuSl4Ksu0lrl0IqHd6EHiXNCK1xKsfHY/WJeg0f6p2gKfWvS2PElJSUgntM5xUfFYu1V4BzY+Hwo7cwbl7IQe/XfqfyRCFeubTU5tEAopI0kYznweXK33wXhD23DzsnrI1Q9gWgWlRcG3E=
 ```
 
 ### Add notes user to Veeam as Restore Operator
@@ -568,7 +571,7 @@ Note: On Windows using the system account, switch back to the existing cmd windo
 ssh notes@veeam-server.acme.loc check
 ```
 
-The first time you connect you are prompted to trust the certificate on the OpenSSL server.
+The first time you connect you are prompted to trust the certificate on the OpenSSH server.
 
 Confirm the following prompt:
 
