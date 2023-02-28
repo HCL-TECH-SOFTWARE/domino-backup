@@ -107,22 +107,22 @@
 <item name='ScriptDir'><text/></item>
 <item name='BackupTargetDirFile'><text>c:\backuptest\notesdata</text></item>
 <item name='BackupTargetDelta'><text/></item>
-<item name='BackupDbCommand'><text>x:= "/"; q:={"}; "aws s3 cp " + q + PhysicalFileName + q + " " + q + BackupTargetDir + x + BackupNode + x + BackupMode + x + BackupDateTime + x + FileName + q +" 2&gt;&amp;1"</text></item>
-<item name='BackupTranslogCommand'><text>x:= "/"; q:={"}; "aws s3 cp " + q + PhysicalFileName + q + " " + q+ BackupTargetDir + x + BackupNode + x + BackupReference + x + FileName + q +" 2&gt;&amp;1"</text></item>
+<item name='BackupDbCommand'><text>x:= "/"; q:={"}; "aws s3 cp " + q + PhysicalFileName + q + " " + q + BackupTargetDir + x + BackupNode + x + BackupMode + x + BackupDateTime + x + FileName + q +" --no-progress 2&gt;&amp;1"</text></item>
+<item name='BackupTranslogCommand'><text>x:= "/"; q:={"}; "aws s3 cp " + q + PhysicalFileName + q + " " + q+ BackupTargetDir + x + BackupNode + x + BackupReference + x + FileName + q +" --no-progress 2&gt;&amp;1"</text></item>
 <item name='BackupPreCommand'><text/></item>
 <item name='BackupPostCommand'><text/></item>
 <item name='BackupSnapshotStartCommand'><text/></item>
 <item name='BackupSnapshotCommand'><text/></item>
-<item name='RestoreDbCommand'><text>x:= "/"; q:={"}; "aws s3 cp " + q + BackupTargetDir + x + BackupNode + x + BackupMode + x + BackupDateTime + x + FileName + q + " " + q + RestoreFileName + q +" 2&gt;&amp;1"</text></item>
-<item name='RestoreTranslogCommand'><text>x:= "/"; q:={"}; "aws s3 cp " + q + BackupTargetDir + x + BackupNode + x + BackupReference + x + FileName + q + " " + q + RestoreFileName + q +" 2&gt;&amp;1"</text></item>
+<item name='RestoreDbCommand'><text>x:= "/"; q:={"}; "aws s3 cp " + q + BackupTargetDir + x + BackupNode + x + BackupMode + x + BackupDateTime + x + FileName + q + " " + q + RestoreFileName + q +" --no-progress 2&gt;&amp;1"</text></item>
+<item name='RestoreTranslogCommand'><text>x:= "/"; q:={"}; "aws s3 cp " + q + BackupTargetDir + x + BackupNode + x + BackupReference + x + FileName + q + " " + q + RestoreFileName + q +" --no-progress 2&gt;&amp;1"</text></item>
 <item name='RestoreSnapshotCommand'><text/></item>
 <item name='RestorePreCommand'><text/></item>
 <item name='RestorePostCommand'><text/></item>
 <item name='RestoreDaosCommand'><text/></item>
 <item name='BackupTargetDirDaos'><text/></item>
 <item name='PruneBackupCommand'><text/></item>
-<item name='PruneDbCommand'><text>x:= "/"; q:={"}; "aws s3 rm " + q + BackupTargetDir + x + BackupNode + x + BackupMode + x + BackupDateTime + x + FileName + q +" 2&gt;&amp;1"</text></item>
-<item name='PruneTranslogCommand'><text>x:= "/"; q:={"}; "aws s3 rm " + q + BackupTargetDir + x + BackupNode + x + BackupReference + x + FileName + q + " 2&gt;&amp;1"</text></item>
+<item name='PruneDbCommand'><text>x:= "/"; q:={"}; "aws s3 rm " + q + BackupTargetDir + x + BackupNode + x + BackupMode + x + BackupDateTime + x + FileName + q +" --no-progress 2&gt;&amp;1"</text></item>
+<item name='PruneTranslogCommand'><text>x:= "/"; q:={"}; "aws s3 rm " + q + BackupTargetDir + x + BackupNode + x + BackupReference + x + FileName + q + " --no-progress 2&gt;&amp;1"</text></item>
 <item name='PruneSnapshotCommand'><text/></item>
 <item name='NotificationLevel'><textlist><text>E</text><text>W</text></textlist></item>
 <item name='NotificationAppendDoc'><text>1</text></item></document>
