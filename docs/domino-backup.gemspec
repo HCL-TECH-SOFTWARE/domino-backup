@@ -3,8 +3,8 @@
 Gem::Specification.new do |spec|
     spec.name          = "project"
     spec.version       = "0.1.1"
-    spec.authors       = ["Saymai Adkins"]
-    spec.email         = ["saymai.adkins@hcl.com"]
+    spec.authors       = [""]
+    spec.email         = [""]
   
     spec.summary       = %q{Testing theme Just-the-Docs}
     spec.homepage      = ""
