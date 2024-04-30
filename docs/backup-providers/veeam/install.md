@@ -551,6 +551,14 @@ Depending on your configuration the `VmHost` can be a different name. You need t
 Check the Veeam [Powershell Command reference Get-VBRRestorePoint](https://helpcenter.veeam.com/docs/backup/powershell/get-vbrrestorepoint.html) for details.
 
 
+#### Account Name configuration
+
+The `AccontName` in the Veeam configuration is actually the `description` of the user specified, because the name of the user is the user name on the target OS.
+Those user names are not unique. Therefore ensure the description of the account can be used as an unique mapping.
+
+Check the Veeam [Powershell Command reference Get-VBRCredentials](https://helpcenter.veeam.com/docs/backup/powershell/get-vbrcredentials.html) for details.
+
+
 ### Test veeam-mount user access
 
 To ensure the communication between the Veeam server and the Domino server works as expected, log into the Domino server from the Veeam server using the SSH private key added earlier.

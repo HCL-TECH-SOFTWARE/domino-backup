@@ -196,6 +196,14 @@ You need to make sure the `IpAddress` matches the name referenced for the Domino
 
 Check the Veeam [Powershell Command reference Get-VBRRestorePoint](https://helpcenter.veeam.com/docs/backup/powershell/get-vbrrestorepoint.html) for details.
 
+#### Account Name configuration
+
+The `AccontName` in the Veeam configuration is actually the `description` of the user specified, because the name of the user is the user name on the target OS.
+Those user names are not unique. Therefore ensure the description of the account can be used as an unique mapping.
+
+Check the Veeam [Powershell Command reference Get-VBRCredentials](https://helpcenter.veeam.com/docs/backup/powershell/get-vbrcredentials.html) for details.
+
+
 ### Test server OpenSSH connection from Domino server to Veeam server
 
 Switch back to your Domino server to test the connection and confirm the public key of the OpenSSH server.  
