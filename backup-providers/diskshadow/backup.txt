@@ -1,0 +1,21 @@
+set metadata c:\backup_meta.cab
+set verbose on
+set context persistent
+
+begin backup
+
+add volume c: alias backup_d
+
+create
+
+expose %backup_d% c:\backup_mount
+
+exec d:\backupvss\mybackup.cmd
+
+unexpose c:\backup_mount
+
+end backup
+
+delete shadows volume c:
+
+exit

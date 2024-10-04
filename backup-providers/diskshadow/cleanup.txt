@@ -1,0 +1,8 @@
+
+unexpose c:\backup_mount
+
+end backup
+
+delete shadows volume d:
+
+exit
