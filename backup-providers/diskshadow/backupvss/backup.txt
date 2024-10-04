@@ -4,13 +4,13 @@ set context persistent
 
 begin backup
 
-add volume c: alias backup_d
+add volume c: alias backup_c
 
 create
 
-expose %backup_d% c:\backup_mount
+expose %backup_c% c:\backup_mount
 
-exec d:\backupvss\mybackup.cmd
+exec c:\backupvss\mybackup.cmd
 
 unexpose c:\backup_mount
 
