@@ -103,7 +103,7 @@ command="powershell.exe c:/domino/veeam/DominoRestore.ps1" ssh-ed25519 AAAAC3Nza
 command="powershell.exe c:/domino/veeam/DominoRestore.ps1" ssh-rsa AAAAB3NzaC1yc2EAAA...
 ```
 
-`Note:` OpenSSH requires strict permission on the authorizied_keys. Make sure the file is only readable by admins and the user
+`Note:` OpenSSH requires strict permission on the authorized_keys. Make sure the file is only readable by admins and the user
 
 ## Configuration File
 
