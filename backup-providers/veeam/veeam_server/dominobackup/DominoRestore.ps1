@@ -175,7 +175,7 @@ if ( $UnmountCommand -eq $True )
   $AfterUnmount = Get-Date
   $Duration = $AfterUnmount - $BeforeUnmount
 
-  Write-Host $AfterUnmount.ToString() "Unmount operation fishined (" $Duration.TotalSeconds.ToString("0.0") "seconds )"
+  Write-Host $AfterUnmount.ToString() "Unmount operation finished (" $Duration.TotalSeconds.ToString("0.0") "seconds )"
 
   Write-Host "OK: Backup(s) unmounted"
   return 0

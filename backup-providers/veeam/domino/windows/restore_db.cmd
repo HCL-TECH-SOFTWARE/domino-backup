@@ -102,9 +102,9 @@ for /r "%VEEAM_RESTORE_BASE_PATH%" %%a in (%DOMBACK_TAG_FILE%) DO (
 REM If not found mount the right snapshot
 
 echo:
-echo [%DATE% %TIME%] ----- Begin Mounting snaphot ----- 
+echo [%DATE% %TIME%] ----- Begin Mounting snapshot -----
 ssh -oBatchMode=yes -oPreferredAuthentications=publickey %VEEAM_SERVER_SSH% mount %7 2>&1
-echo [%DATE% %TIME%] ----- End Mounting snaphot ----- 
+echo [%DATE% %TIME%] ----- End Mounting snapshot -----
 echo:
 
 REM search the restore location for the tag file and terminate when found the first hit
