@@ -22,3 +22,7 @@ The Domino Backup integration is mainly focused on the two agentless hypervisor 
 Domino Backup are fully integrated combining standard interfaces on the Veeam and Domino side.
 
 The following documentation describes implementation details and also provides a step by step implementation guide.
+
+## Reference
+
+- HCL Domino Backup on the [Veeam Alliance Partner website](https://www.veeam.com/sys1253)
