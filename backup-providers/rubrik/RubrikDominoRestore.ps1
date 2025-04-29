@@ -1,17 +1,21 @@
 #Requires -Modules VMware.VimAutomation.Core, Rubrik
 
 param (
+    # Domino tag file path (e.g. 20250101.tag)
     [Parameter()]
     [String]$Tag,
     
+    # Source file path to restore (e.g. E:\notes\data\example.log)
     [Parameter()]
     [String]$Source,
 
+    # Destination file path to restore (e.g. E:\notes\restore\example.log)
     [Parameter()]
     [String]$Destination,
 
+    # Unmount the live-mount associated with the provided tag
     [Parameter()]
-    [Switch]$PersistMount
+    [Switch]$RemoveMount
     )
 
 # The time we get from global file search is in epoch ms. We need to convert it.
@@ -23,7 +27,6 @@ function convertto-datetime($epochms) {
 function ConvertFrom-SecureStringToPlainText ([System.Security.SecureString]$SecureString) {
 
     [System.Runtime.InteropServices.Marshal]::PtrToStringAuto(
-    
         [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecureString)
     )            
 }
@@ -57,8 +60,21 @@ If(Test-Path .\$tagmount) {
 } else {
     ###
     # Connect to vCenter and Rubrik
-    Connect-VIServer -Server $config.vcenterHost -Username $config.vcenterUser -Password (ConvertFrom-SecureStringToPlainText $config.vcenterPass)
-    Connect-Rubrik -Server $config.rubrikHost -id $config.rubrikClientId -Secret (ConvertFrom-SecureStringToPlainText $config.rubrikSecret)
+    try {
+        Connect-VIServer -Server $config.vcenterHost -Username $config.vcenterUser -Password (ConvertFrom-SecureStringToPlainText $config.vcenterPass)
+    }
+    catch {
+        Write-Error "Connection to vCenter failed: $($PSItem.Exception.Message)" -ErrorAction Stop
+        Exit 1
+    }
+    try {
+        Connect-Rubrik -Server $config.rubrikHost -id $config.rubrikClientId -Secret (ConvertFrom-SecureStringToPlainText $config.rubrikSecret)
+    }
+    catch {
+        Write-Error "Connection to Rubrik Cluster failed: $($PSItem.Exception.Message)" -ErrorAction Stop
+        Exit 1
+    }
+    
 
     ###
     # Tag Search
@@ -126,19 +142,20 @@ If(Test-Path .\$tagmount) {
 
 ###
 # File copy operation
-#$destinationPath = $Destination
-#$sourcePath = $newDriveLetter + $filePath.Substring(1) + $fileName
 $modifedSource = $Source.Split(':')[-1]
 
-Write-Output "Copying $($newDriveLetter + $modifedSource) to $Destination"
+$mountedSource = Join-Path $newDriveLetter $modifedSource
+if (!(Test-Path $mountedSource)) {
+    Write-Error "The source file does not exist on this live-mount: $mountedSource"
+    Exit 1
+}
+Write-Output "Copying $mountedSource to $Destination"
 New-Item $Destination -Force
 Copy-Item (Join-Path $newDriveLetter $modifedSource) $Destination -Force
 
 ###
-# Unmount
-# By default, mounts will be cleaned up after a single file restore.
-# If this is a multi-file restore, you must use -PersistMount until the last file.
-if (!$PersistMount) {
+# Removes the mount for the given tag Id
+if ($RemoveMount) {
     Connect-Rubrik -Server $config.rubrikHost -id $config.rubrikClientId -Secret (ConvertFrom-SecureStringToPlainText $config.rubrikSecret)
     Remove-RubrikMount -id $mountId
     Remove-Item $tagmount
