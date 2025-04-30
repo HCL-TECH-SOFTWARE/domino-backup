@@ -129,7 +129,7 @@ If(Test-Path .\$tagmount) {
     # Activate Disk
     $disk = Get-Disk | Where-Object isOffline -eq $true
     $disk | Set-Disk -isOffline $false
-    $newDriveLetter = ($disk | Get-Partition).driveLetter + ":"
+    $newDriveLetter = ($disk | Get-Partition | Where-Object {$_.DriveLetter -ne [char]"`0"}).driveLetter + ":"
     Get-Volume -DriveLetter $newDriveLetter.split(":")[0] | Set-Volume -NewFileSystemLabel "Restore-$tagmount"
 
     # Save mount id and drive letter to file
