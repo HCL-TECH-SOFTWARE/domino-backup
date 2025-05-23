@@ -1,16 +1,19 @@
 #Requires -Modules VMware.VimAutomation.Core, Rubrik
 
+
+### Parameter positions dictated by Domino Backup. This does not appear to be documented anywhere.
 param (
     # Domino tag file path (e.g. 20250101.tag)
-    [Parameter()]
+    [Parameter(Position=6)]
+    [ValidateNotNullOrEmpty()]
     [String]$Tag,
     
     # Source file path to restore (e.g. E:\notes\data\example.log)
-    [Parameter()]
+    [Parameter(Position=0)]
     [String]$Source,
 
     # Destination file path to restore (e.g. E:\notes\restore\example.log)
-    [Parameter()]
+    [Parameter(Position=8)]
     [String]$Destination,
 
     # Unmount the live-mount associated with the provided tag
@@ -25,10 +28,9 @@ function convertto-datetime($epochms) {
 
 # PowerShell 5.1 does not have the -AsPlainText attribute for converting from SecureString. This function compensates.
 function ConvertFrom-SecureStringToPlainText ([System.Security.SecureString]$SecureString) {
-
     [System.Runtime.InteropServices.Marshal]::PtrToStringAuto(
         [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecureString)
-    )            
+    )
 }
 
 # First Time Setup
@@ -48,13 +50,23 @@ else {
     $config = Import-Clixml .\rubrik.xml
 }
 
-# Using the tag as a filename to keep track of any mounts we have. 
-# The file will contain the drive letter where it's mounted, and the mount id so we can unmount later.
-$tagmount = $Tag.Split('\')[-1].Split('.')[0]
+$tagFileName = "dominobackup_$Tag.tag"
 
-If(Test-Path .\$tagmount) {
-    Write-Output "Found existing mount file for this tag: $tagmount."
-    $mountData = Get-Content .\$tagmount | ConvertFrom-Json
+If((Test-Path .\$Tag) -and $RemoveMount.IsPresent) {
+    $mountData = Get-Content .\$Tag | ConvertFrom-Json
+    $newDriveLetter = $mountData.driveLetter
+    $mountId = $mountData.mountId
+    Write-Output "Removing Rubrik Live Mount $mountId located on $newDriveLetter"
+    Connect-Rubrik -Server $config.rubrikHost -id $config.rubrikClientId -Secret (ConvertFrom-SecureStringToPlainText $config.rubrikSecret)
+    Remove-Item .\$Tag
+    Remove-RubrikMount -id $mountId -ErrorAction SilentlyContinue
+    Disconnect-Rubrik
+    Exit 0
+}
+
+If(Test-Path .\$Tag) {
+    Write-Output "Found existing mount file for this tag: $Tag."
+    $mountData = Get-Content .\$Tag | ConvertFrom-Json
     $newDriveLetter = $mountData.driveLetter
     $mountId = $mountData.mountId
 } else {
@@ -76,9 +88,10 @@ If(Test-Path .\$tagmount) {
     }
     
 
+
     ###
     # Tag Search
-    $globalSearchResult = Invoke-RubrikRESTCall -api internal -Method POST -Endpoint "search/global" -Body @{regex = $Tag}
+    $globalSearchResult = Invoke-RubrikRESTCall -api internal -Method POST -Endpoint "search/global" -Body @{regex = $tagFileName}
 
     Write-Output $globalSearchResult
 
@@ -130,7 +143,7 @@ If(Test-Path .\$tagmount) {
     $disk = Get-Disk | Where-Object isOffline -eq $true
     $disk | Set-Disk -isOffline $false
     $newDriveLetter = ($disk | Get-Partition | Where-Object {$_.DriveLetter -ne [char]"`0"}).driveLetter + ":"
-    Get-Volume -DriveLetter $newDriveLetter.split(":")[0] | Set-Volume -NewFileSystemLabel "Restore-$tagmount"
+    #Get-Volume -DriveLetter $newDriveLetter.split(":")[0] | Set-Volume -NewFileSystemLabel "Restore-$tagmount"
 
     # Save mount id and drive letter to file
     $mountData = @{driveLetter = $newDriveLetter; mountId = $mountId}
@@ -152,13 +165,3 @@ if (!(Test-Path $mountedSource)) {
 Write-Output "Copying $mountedSource to $Destination"
 New-Item $Destination -Force
 Copy-Item (Join-Path $newDriveLetter $modifedSource) $Destination -Force
-
-###
-# Removes the mount for the given tag Id
-if ($RemoveMount) {
-    Connect-Rubrik -Server $config.rubrikHost -id $config.rubrikClientId -Secret (ConvertFrom-SecureStringToPlainText $config.rubrikSecret)
-    Remove-RubrikMount -id $mountId
-    Remove-Item $tagmount
-    Disconnect-Rubrik
-}
-
