@@ -1,17 +1,24 @@
 #Requires -Modules VMware.VimAutomation.Core, Rubrik
 
+
+### Parameter positions dictated by Domino Backup. This does not appear to be documented anywhere.
 param (
-    [Parameter()]
+    # Domino tag file path (e.g. 20250101.tag)
+    [Parameter(Position=6)]
+    [ValidateNotNullOrEmpty()]
     [String]$Tag,
     
-    [Parameter()]
+    # Source file path to restore (e.g. E:\notes\data\example.log)
+    [Parameter(Position=0)]
     [String]$Source,
 
-    [Parameter()]
+    # Destination file path to restore (e.g. E:\notes\restore\example.log)
+    [Parameter(Position=8)]
     [String]$Destination,
 
+    # Unmount the live-mount associated with the provided tag
     [Parameter()]
-    [Switch]$PersistMount
+    [Switch]$RemoveMount
     )
 
 # The time we get from global file search is in epoch ms. We need to convert it.
@@ -21,11 +28,9 @@ function convertto-datetime($epochms) {
 
 # PowerShell 5.1 does not have the -AsPlainText attribute for converting from SecureString. This function compensates.
 function ConvertFrom-SecureStringToPlainText ([System.Security.SecureString]$SecureString) {
-
     [System.Runtime.InteropServices.Marshal]::PtrToStringAuto(
-    
         [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecureString)
-    )            
+    )
 }
 
 # First Time Setup
@@ -45,24 +50,48 @@ else {
     $config = Import-Clixml .\rubrik.xml
 }
 
-# Using the tag as a filename to keep track of any mounts we have. 
-# The file will contain the drive letter where it's mounted, and the mount id so we can unmount later.
-$tagmount = $Tag.Split('\')[-1].Split('.')[0]
+$tagFileName = "dominobackup_$Tag.tag"
 
-If(Test-Path .\$tagmount) {
-    Write-Output "Found existing mount file for this tag: $tagmount."
-    $mountData = Get-Content .\$tagmount | ConvertFrom-Json
+If((Test-Path .\$Tag) -and $RemoveMount.IsPresent) {
+    $mountData = Get-Content .\$Tag | ConvertFrom-Json
+    $newDriveLetter = $mountData.driveLetter
+    $mountId = $mountData.mountId
+    Write-Output "Removing Rubrik Live Mount $mountId located on $newDriveLetter"
+    Connect-Rubrik -Server $config.rubrikHost -id $config.rubrikClientId -Secret (ConvertFrom-SecureStringToPlainText $config.rubrikSecret)
+    Remove-Item .\$Tag
+    Remove-RubrikMount -id $mountId -ErrorAction SilentlyContinue
+    Disconnect-Rubrik
+    Exit 0
+}
+
+If(Test-Path .\$Tag) {
+    Write-Output "Found existing mount file for this tag: $Tag."
+    $mountData = Get-Content .\$Tag | ConvertFrom-Json
     $newDriveLetter = $mountData.driveLetter
     $mountId = $mountData.mountId
 } else {
     ###
     # Connect to vCenter and Rubrik
-    Connect-VIServer -Server $config.vcenterHost -Username $config.vcenterUser -Password (ConvertFrom-SecureStringToPlainText $config.vcenterPass)
-    Connect-Rubrik -Server $config.rubrikHost -id $config.rubrikClientId -Secret (ConvertFrom-SecureStringToPlainText $config.rubrikSecret)
+    try {
+        Connect-VIServer -Server $config.vcenterHost -Username $config.vcenterUser -Password (ConvertFrom-SecureStringToPlainText $config.vcenterPass)
+    }
+    catch {
+        Write-Error "Connection to vCenter failed: $($PSItem.Exception.Message)" -ErrorAction Stop
+        Exit 1
+    }
+    try {
+        Connect-Rubrik -Server $config.rubrikHost -id $config.rubrikClientId -Secret (ConvertFrom-SecureStringToPlainText $config.rubrikSecret)
+    }
+    catch {
+        Write-Error "Connection to Rubrik Cluster failed: $($PSItem.Exception.Message)" -ErrorAction Stop
+        Exit 1
+    }
+    
+
 
     ###
     # Tag Search
-    $globalSearchResult = Invoke-RubrikRESTCall -api internal -Method POST -Endpoint "search/global" -Body @{regex = $Tag}
+    $globalSearchResult = Invoke-RubrikRESTCall -api internal -Method POST -Endpoint "search/global" -Body @{regex = $tagFileName}
 
     Write-Output $globalSearchResult
 
@@ -113,8 +142,8 @@ If(Test-Path .\$tagmount) {
     # Activate Disk
     $disk = Get-Disk | Where-Object isOffline -eq $true
     $disk | Set-Disk -isOffline $false
-    $newDriveLetter = ($disk | Get-Partition).driveLetter + ":"
-    Get-Volume -DriveLetter $newDriveLetter.split(":")[0] | Set-Volume -NewFileSystemLabel "Restore-$tagmount"
+    $newDriveLetter = ($disk | Get-Partition | Where-Object {$_.DriveLetter -ne [char]"`0"}).driveLetter + ":"
+    #Get-Volume -DriveLetter $newDriveLetter.split(":")[0] | Set-Volume -NewFileSystemLabel "Restore-$tagmount"
 
     # Save mount id and drive letter to file
     $mountData = @{driveLetter = $newDriveLetter; mountId = $mountId}
@@ -126,22 +155,13 @@ If(Test-Path .\$tagmount) {
 
 ###
 # File copy operation
-#$destinationPath = $Destination
-#$sourcePath = $newDriveLetter + $filePath.Substring(1) + $fileName
 $modifedSource = $Source.Split(':')[-1]
 
-Write-Output "Copying $($newDriveLetter + $modifedSource) to $Destination"
+$mountedSource = Join-Path $newDriveLetter $modifedSource
+if (!(Test-Path $mountedSource)) {
+    Write-Error "The source file does not exist on this live-mount: $mountedSource"
+    Exit 1
+}
+Write-Output "Copying $mountedSource to $Destination"
 New-Item $Destination -Force
 Copy-Item (Join-Path $newDriveLetter $modifedSource) $Destination -Force
-
-###
-# Unmount
-# By default, mounts will be cleaned up after a single file restore.
-# If this is a multi-file restore, you must use -PersistMount until the last file.
-if (!$PersistMount) {
-    Connect-Rubrik -Server $config.rubrikHost -id $config.rubrikClientId -Secret (ConvertFrom-SecureStringToPlainText $config.rubrikSecret)
-    Remove-RubrikMount -id $mountId
-    Remove-Item $tagmount
-    Disconnect-Rubrik
-}
-
