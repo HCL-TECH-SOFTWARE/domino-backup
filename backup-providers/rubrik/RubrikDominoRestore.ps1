@@ -153,7 +153,7 @@ If(Test-Path .\$TagPath) {
 
     # Save mount id and drive letter to file
     $mountData = @{driveLetter = $newDriveLetter; mountId = $mountId}
-    $mountData | ConvertTo-Json | Out-File $tagmount
+    $mountData | ConvertTo-Json | Out-File $TagPath
 
     Disconnect-VIServer -Force -Confirm:$false
     Disconnect-Rubrik
