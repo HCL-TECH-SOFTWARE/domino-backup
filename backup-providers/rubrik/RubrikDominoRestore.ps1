@@ -32,6 +32,11 @@ function ConvertFrom-SecureStringToPlainText ([System.Security.SecureString]$Sec
     )
 }
 
+function restoreFailed() {
+    Write-Output "RESTORE FAILED"
+    Exit 1
+}
+
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $CredentialFile = "rubrik.xml"
@@ -81,28 +86,33 @@ If(Test-Path .\$TagPath) {
     $mountId = $mountData.mountId
 } else {
     ###
-    # Connect to vCenter and Rubrik
+    # Connect to vCenter and Rubrik Cluster
     try {
         Connect-VIServer -Server $config.vcenterHost -Username $config.vcenterUser -Password (ConvertFrom-SecureStringToPlainText $config.vcenterPass)
     }
     catch {
         Write-Error "Connection to vCenter failed: $($PSItem.Exception.Message)" -ErrorAction Stop
-        Exit 1
+        restoreFailed
     }
     try {
         Connect-Rubrik -Server $config.rubrikHost -id $config.rubrikClientId -Secret (ConvertFrom-SecureStringToPlainText $config.rubrikSecret)
     }
     catch {
         Write-Error "Connection to Rubrik Cluster failed: $($PSItem.Exception.Message)" -ErrorAction Stop
-        Exit 1
+        restoreFailed
     }
     
     # Tag Search
     # We can only search for tag files after the snapshot has been indexed.
     $tagFileName = "dominobackup_$Tag.tag"
+    Write-Output "Performing global search for file named $tagFileName..."
     $globalSearchResult = Invoke-RubrikRESTCall -api internal -Method POST -Endpoint "search/global" -Body @{regex = $tagFileName}
-
     Write-Output $globalSearchResult
+    
+    if ($globalSearchResult.total -eq 0) {
+        Write-Error -Message "No snapshot found with tag $Tag"
+        restoreFailed
+    }
 
     $snapshotTime = convertto-datetime($globalSearchResult.data[0].snapshotTime)
     $drive = $globalSearchResult.data[0].dirs.Split('/')[1]
@@ -149,7 +159,6 @@ If(Test-Path .\$TagPath) {
     $disk = Get-Disk | Where-Object isOffline -eq $true
     $disk | Set-Disk -isOffline $false
     $newDriveLetter = ($disk | Get-Partition | Where-Object {$_.DriveLetter -ne [char]"`0"}).driveLetter + ":"
-    #Get-Volume -DriveLetter $newDriveLetter.split(":")[0] | Set-Volume -NewFileSystemLabel "Restore-$tagmount"
 
     # Save mount id and drive letter to file
     $mountData = @{driveLetter = $newDriveLetter; mountId = $mountId}
@@ -175,6 +184,6 @@ try {
     Write-Output "RESTORE SUCCEEDED"
 }
 catch {
-    Write-Output "RESTORE FAILED"
     Write-Error "An error occurred during the restore operation: $($_.Exception.Message)"
+    restoreFailed
 }
