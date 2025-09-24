@@ -32,6 +32,11 @@ function ConvertFrom-SecureStringToPlainText ([System.Security.SecureString]$Sec
     )
 }
 
+function restoreFailed() {
+    Write-Output "RESTORE FAILED"
+    Exit 1
+}
+
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $CredentialFile = "rubrik.xml"
@@ -80,43 +85,78 @@ If(Test-Path .\$TagPath) {
     $newDriveLetter = $mountData.driveLetter
     $mountId = $mountData.mountId
 } else {
-    ###
-    # Connect to vCenter and Rubrik
+    # Connect to vCenter and Rubrik Cluster
     try {
         Connect-VIServer -Server $config.vcenterHost -Username $config.vcenterUser -Password (ConvertFrom-SecureStringToPlainText $config.vcenterPass)
     }
     catch {
         Write-Error "Connection to vCenter failed: $($PSItem.Exception.Message)" -ErrorAction Stop
-        Exit 1
+        restoreFailed
     }
     try {
         Connect-Rubrik -Server $config.rubrikHost -id $config.rubrikClientId -Secret (ConvertFrom-SecureStringToPlainText $config.rubrikSecret)
     }
     catch {
         Write-Error "Connection to Rubrik Cluster failed: $($PSItem.Exception.Message)" -ErrorAction Stop
-        Exit 1
+        restoreFailed
     }
-    
+
+    # Get UUID from Guest OS
+    try {
+        $uuid = ([guid]((Get-WmiObject win32_bios).SerialNumber -replace "[\s-]","").Substring(6)).ToString()
+    }
+    catch {
+        Write-Error "Failed to get UUID from Guest OS: $($PSItem.Exception.Message)" -ErrorAction Stop
+        restoreFailed
+    }
+
+    # Get MOID from vCenter
+    try {
+        $si = Get-View ServiceInstance
+        $search = Get-View $si.Content.SearchIndex
+        $vmView = $search.FindByUuid($null, $uuid, $true, $false)
+        $moid = $vmView.Value
+    }
+    catch {
+        Write-Error "Failed to get MOID from vCenter: $($PSItem.Exception.Message)" -ErrorAction Stop
+        restoreFailed
+    }
+
+    # Get Rubrik and VMware VM objects using MOID
+    $rubrikVm = (Invoke-RubrikRESTCall -API 1 -method GET -endpoint "vmware/vm" -Query @{"moid" = $moid}).data[0]
+    $vmwareVm = Get-VM -Id "VirtualMachine-$moid"
+
     # Tag Search
     # We can only search for tag files after the snapshot has been indexed.
     $tagFileName = "dominobackup_$Tag.tag"
-    $globalSearchResult = Invoke-RubrikRESTCall -api internal -Method POST -Endpoint "search/global" -Body @{regex = $tagFileName}
+    Write-Output "Performing search for file named $tagFileName on $($rubrikVm.name)..."
 
-    Write-Output $globalSearchResult
+    $searchResult = $rubrikVm | Find-RubrikFile -SearchString $tagFileName
 
-    $snapshotTime = convertto-datetime($globalSearchResult.data[0].snapshotTime)
-    $drive = $globalSearchResult.data[0].dirs.Split('/')[1]
-    $vmId = $globalSearchResult.data[0].snappableId
-    $vmName = $globalSearchResult.data[0].snappableName
+    # Check for no results or multiple results
+    if ($searchResult.total -ne $null) {
+        Write-Error -Message "No snapshot found with tag $Tag"
+        restoreFailed
+    }
+    elseif ($searchResult.count -ne $null) {
+        Write-Error -Message "Multiple files ($($searchResult.count)) found with name: $tagFileName"
+        restoreFailed
+    }
+    elseif ($searchResult.fileVersions.count -ne $null) {
+        Write-Error -Message "Multiple snapshots found for file with name: $tagFileName"
+        restoreFailed
+    }
+    else {
+        Write-Output $searchResult
+    }
 
-    Write-Output "Global Search Result:"
-    Write-Output "Drive: $drive"
-    Write-Output "vmId: $vmId"
-    Write-Output "vmName: $vmName"
+    $drive = $searchResult.path.Split(':')[0]
+    $snapshotId = $searchResult.fileVersions.snapshotId
+    Write-Output "Snapshot ID: $snapshotId"
 
     # Get vmdk from drive letter
     # This requires VMware Tools
-    $harddrives = Get-VM $vmName | Get-HardDisk
+    $harddrives = $vmwareVm | Get-HardDisk
     $vmdk = ""
     foreach ($hd in $harddrives) {
         if (($hd | Get-VMGuestDisk).DiskPath.Contains($drive)) {
@@ -124,20 +164,16 @@ If(Test-Path .\$TagPath) {
         }
     }
 
-    Write-Output "VMDK File: $vmdk"
+    Write-Output "Retrieving snapshot object with ID: $snapshotId"
+    $snapshot = Get-RubrikSnapshot -SnapshotId $snapshotId -SnapshotType vmware/vm
 
-    # Get Snapshot
-    $snapshot = Get-RubrikSnapshot -id $vmId -Date $snapshotTime
-
-    # Get VMDK ID
+    Write-Output "Retrieving VMDK object with ID: $vmdk"
     $virtualDisks = Invoke-RubrikRESTCall -api internal -method GET -endpoint "vmware/vm/virtual_disk" 
     $vmdkId = ($virtualDisks.data | Where-Object { $_.filename -contains $vmdk}).id
 
-    Write-Output "Mounting VMDK $vmdkId to VM: $vmId"
-
-    # Live Mount Disk Snapshot
+    Write-Output "Mounting VMDK $vmdkId to $($rubrikVm.name) with snapshot ID: $($snapshot.id)"
     $liveMountPayload = @{
-        targetVmId = $vmId;
+        targetVmId = $rubrikVm.id;
         vmdkIds = @($vmdkId)
     }
     $mountStatus = Invoke-RubrikRESTCall -api internal -method POST -Endpoint "vmware/vm/snapshot/$($snapshot.id)/mount_disks" -body $liveMountPayload
@@ -145,13 +181,12 @@ If(Test-Path .\$TagPath) {
     Get-RubrikRequest -id $mountStatus.id -Type vmware/vm -WaitForCompletion
     $mountId = (Get-RubrikMount | Where-Object mountRequestId -eq $mountStatus.id).id
     
-    # Activate Disk
+    Write-Output "Activating disk"
     $disk = Get-Disk | Where-Object isOffline -eq $true
     $disk | Set-Disk -isOffline $false
     $newDriveLetter = ($disk | Get-Partition | Where-Object {$_.DriveLetter -ne [char]"`0"}).driveLetter + ":"
-    #Get-Volume -DriveLetter $newDriveLetter.split(":")[0] | Set-Volume -NewFileSystemLabel "Restore-$tagmount"
 
-    # Save mount id and drive letter to file
+    Write-Outout "Saving mount state to $TagPath"
     $mountData = @{driveLetter = $newDriveLetter; mountId = $mountId}
     $mountData | ConvertTo-Json | Out-File $TagPath
 
@@ -159,22 +194,23 @@ If(Test-Path .\$TagPath) {
     Disconnect-Rubrik
 }
 
-###
 # File copy operation
 $modifedSource = $Source.Split(':')[-1]
 
 $mountedSource = Join-Path $newDriveLetter $modifedSource
 if (!(Test-Path $mountedSource)) {
     Write-Error "The source file does not exist on this live-mount: $mountedSource"
-    Exit 1
+    restoreFailed
 }
 Write-Output "Copying $mountedSource to $Destination"
 try {
-    New-Item $Destination -Force -ErrorAction Stop
-    Copy-Item (Join-Path $newDriveLetter $modifedSource) $Destination -Force -ErrorAction Stop
+    New-Item $Destination -Force -ErrorAction Stop | Out-Null
+    Copy-Item $mountedSource $Destination -Force -ErrorAction Stop
+    $copiedFile = Get-Item $Destination
+    Write-Output "$mountedSource copied to $($copiedFile.FullName) with a length of $($copiedFile.Length) bytes"
     Write-Output "RESTORE SUCCEEDED"
 }
 catch {
-    Write-Output "RESTORE FAILED"
     Write-Error "An error occurred during the restore operation: $($_.Exception.Message)"
+    restoreFailed
 }
