@@ -152,6 +152,7 @@ If(Test-Path .\$TagPath) {
 
     $drive = $searchResult.path.Split(':')[0]
     $snapshotId = $searchResult.fileVersions.snapshotId
+    Write-Output "Snapshot ID: $snapshotId"
 
     # Get vmdk from drive letter
     # This requires VMware Tools
@@ -163,18 +164,14 @@ If(Test-Path .\$TagPath) {
         }
     }
 
-    Write-Output "VMDK File: $vmdk"
-
-    # Get Snapshot
+    Write-Output "Retrieving snapshot object with ID: $snapshotId"
     $snapshot = Get-RubrikSnapshot -SnapshotId $snapshotId -SnapshotType vmware/vm
 
-    # Get VMDK ID
+    Write-Output "Retrieving VMDK object with ID: $vmdk"
     $virtualDisks = Invoke-RubrikRESTCall -api internal -method GET -endpoint "vmware/vm/virtual_disk" 
     $vmdkId = ($virtualDisks.data | Where-Object { $_.filename -contains $vmdk}).id
 
-    Write-Output "Mounting VMDK $vmdkId to $($rubrikVm.name)"
-
-    # Live Mount Disk Snapshot
+    Write-Output "Mounting VMDK $vmdkId to $($rubrikVm.name) with snapshot ID: $($snapshot.id)"
     $liveMountPayload = @{
         targetVmId = $rubrikVm.id;
         vmdkIds = @($vmdkId)
@@ -184,12 +181,12 @@ If(Test-Path .\$TagPath) {
     Get-RubrikRequest -id $mountStatus.id -Type vmware/vm -WaitForCompletion
     $mountId = (Get-RubrikMount | Where-Object mountRequestId -eq $mountStatus.id).id
     
-    # Activate Disk
+    Write-Output "Activating disk"
     $disk = Get-Disk | Where-Object isOffline -eq $true
     $disk | Set-Disk -isOffline $false
     $newDriveLetter = ($disk | Get-Partition | Where-Object {$_.DriveLetter -ne [char]"`0"}).driveLetter + ":"
 
-    # Save mount id and drive letter to file
+    Write-Outout "Saving mount state to $TagPath"
     $mountData = @{driveLetter = $newDriveLetter; mountId = $mountId}
     $mountData | ConvertTo-Json | Out-File $TagPath
 
