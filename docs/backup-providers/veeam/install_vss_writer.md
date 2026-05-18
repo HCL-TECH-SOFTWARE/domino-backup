@@ -4,7 +4,7 @@ title: "Domino 12.0.2 Win Veeam"
 nav_order: 4
 parent: Veeam
 grand_parent: "Backup Providers"
-description: "Install Domino 12.0.2 Windows Backup VSS Veeam Integration"
+description: "Install Domino 12.0.2+ Windows Backup VSS Veeam Integration"
 ---
 
 # Domino 12.0.2 Backup Veeam restore integration step by step installation
@@ -12,7 +12,7 @@ description: "Install Domino 12.0.2 Windows Backup VSS Veeam Integration"
  !! **The new integration is only available on Windows leveraging the VSS Writer interface** !!
 
 Starting with Domino 12.0.2 the new **VSS Writer implementation** is the recommended backup integration.  
-Backup no integration scripts are required for applications supporting VSS snapshots on Windows.  
+For backup no integration scripts are required supporting VSS snapshots on Windows.  
 Restore operations still require to mount snapshots to the Domino server.  
 The following document describes a simplified restore integration for Domino in combination with Veeam.  
 This integration is a reference implementation, which might be adopted for other integrations.
@@ -28,13 +28,13 @@ This document mainly focuses on restore integration. For more details about the 
 
 ## Summary of required steps
 
-- Copy the backup script on Veeam server
+- Copy the restore Powershell script on Veeam server
 - Install OpenSSH on Veeam server
 - Create "notes" user on Veeam server
 - Configure dominobackup.cfg for your Domino server
 
-- Copy the restore script on Domino Windows server
-- Create SSH key and configured it for accessing the Veeam server
+- Copy the restore scripts to the Domino Windows server
+- Create SSH key and configured it to access the Veeam server
 - Test the SSH connection from Domino server to Veeam server
 
 ## Veeam Backup & Replication server configuration
@@ -43,7 +43,7 @@ This document mainly focuses on restore integration. For more details about the 
 
 Copy the configuration files from the `veeam_server` directory to `c:\dominobackup` directory.
 
-The directory contains the following files
+The directory contains the following files:
 
 - PowerShell script to search and mount Veeam Restore Points (separate subdirectories)
 - JSON configuration file
@@ -107,6 +107,18 @@ Create a local administrator account `notes` and log in with the new user.
 ### Additional Info: PowerShell operations for command-line configuration
 
 To create an user account on the command-line the following PowerShell commands might be helpful.
+This method only works for local uses.
+
+Note: In case you are running a server which is also an AD Domain Controller no local user management is available and the user would need to be a domain user.
+
+### Permissions
+
+The user can be either part of the local Administrators group or can configured as a Veeam Backup Admin.
+Both configurations have been successfully deployed.
+
+### Example
+
+The following command shows how to create a local admin user.
 
 ```
 New-LocalUser -Name notes -Description "Notes Veeam integration user"
@@ -114,18 +126,20 @@ Add-LocalGroupMember -Group Administrators -Member "notes"
 Get-LocalGroupMember -Group "Administrators"
 ```
 
-Run the following command as the user to create home dir. The home directory is important to add the `.ssh` directory for the `authorized_keys` file later.
+Once the user is created run the following command as the user to create home dir.
+The home directory is important to add the `.ssh` directory for the `authorized_keys` file later.
 
 ```
 runas /user:notes "cmd.exe /c quit"
 ```
 
-### Add notes user to Veeam as restore operator
+To create the SSH configuration it could also make sense to start a local session as the "notes" user.
 
-- In the Veeam Backup and Replication client, open `User and Roles` from the menu in the upper left corner.
+A command-line could be opened like this:
 
-- Add the `notes` user and grand access with at least `Veeam Restore Operator` role.
-
+```
+runas /user:notes "cmd.exe"
+```
 
 ### Add account to OpenSSH configuration on Veeam server
 
@@ -138,6 +152,8 @@ Switch to the user's home and create a new directory for SSH `.ssh`
 ```
 
 ### Configure SSH connection for the "notes" user on the Veeam server
+
+Note: The public key might not be available yet and will be created in a next step on the Domino server side.
 
 The public key added in this configuration step will be created in a configuration step on a Windows based Domino server.  
 Refer to the section **Domino Server on Windows Veeam configuration**.
@@ -161,11 +177,19 @@ To allow a single script to bypass the policy change the invoked command to a li
 command="powershell.exe -noprofile -executionpolicy bypass -file c:/dominobackup/DominoRestore.ps1" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEFUAH/EaO7yK0QrRRLiAeOzAm+4gZVBFqUL37V4T9TQ
 ```
 
+
+### Add notes user to Veeam as restore operator
+
+- In the Veeam Backup and Replication client, open `User and Roles` from the menu in the upper left corner.
+
+- Add the `notes` user and grand access with at least `Veeam Restore Operator` role.
+
+
 ### Add Domino server to JSON configuration on the Veeam server
 
 Each Domino server requires a configuration entry in the JSON configuration file to authorize the Domino server to request mount operations.
 
-Specify the followiong information:
+Specify the following information:
 
 `c:/dominobackup/dominobackup.cfg`
 
@@ -192,7 +216,8 @@ The configuration contains the following information:
 
 The `VmHost` is the name configured in your Veeam Backup configuration. In the previous example, the local server is configured.
 For Veeam backup agent configurations it is usually the DNS name of the server. For VM backup integrations like VMware Vsphere it is usually a VM name.
-You need to make sure the `IpAddress` matches the name referenced for the Domino instance. In case you are not sure which name to use, open a Powershell prompt on your Veeam server to find backups via `Get-VBRRestorePoint` command. Depending on the size of your environment you might want to narrow down the search. Each backup references the name, leveraged by the PowerShell script mounting the snapshot.
+You need to make sure the `IpAddress` matches the name referenced for the Domino instance.
+In case you are not sure which name to use, open a Powershell prompt on your Veeam server to find backups via `Get-VBRRestorePoint` command. Depending on the size of your environment you might want to narrow down the search. Each backup references the name, leveraged by the PowerShell script mounting the snapshot.
 
 Check the Veeam [Powershell Command reference Get-VBRRestorePoint](https://helpcenter.veeam.com/docs/backup/powershell/get-vbrrestorepoint.html) for details.
 
@@ -262,16 +287,6 @@ The following files are required for  restore configuration:
   Post restore script to unmount Veeam mounts used during restore operations.  
 
 
-### Download Microsoft psexec.exe to Veeam server
-
-Download the zip file for the ps-tools and extract the `psexec.exe` binary to your server (e.g. `c:\psexec.exe`).
-
-https://docs.microsoft.com/en-us/sysinternals/downloads/psexec
-
-The `psexec.exe` helper tool is used to configure the SSH connection for the system account later.
-It can be removed after the configuration is performed. But keeping the helper binary could be useful for troubleshooting.
-
-
 ### Configure the restore scripts on Domino Window server
 
 The restore scripts require a connection to the Veeam server.  
@@ -286,13 +301,27 @@ VEEAM_SERVER_SSH=notes@veeam-server.acme.loc
 
 Note: DNS entries are preferred. IP addresses should be avoided (but work in the same way).
 
-### Create SSH key for the system account on Domino server
+### Create SSH key for the the user running your Domino service
 
-For Domino servers using the Windows system account open a cmd.exe window in the following way.  
-In case the Domino server is running with an application user, perform the steps with the user assigned to the server.  
-To ensure the connection to the Veeam server also works when the server is started in the foreground instead of a service, the SSH key must be also copied to the account used to start the server!
+The SSH configuration needs to be performed for the user running your server.
 
-Open an administrator cmd window and run the following command:
+- In older installations this user is the Windows System account
+- In newer installations the user is often the Windows Local Service account
+- If your user is running with an assigned local or Windows domain user, the configuration needs to be performed with this user
+
+For Domino servers using Windows system account or local service account, an interactive shell can be opened using the Windows `psexec` application from Windows Internals.
+Note: To ensure the connection to the Veeam server also works when the server is started in the foreground instead of a service, the SSH key must be also copied to the account used to start the server!
+
+### Download Microsoft psexec.exe to Domino Server
+
+The `psexec` helper tool is only needed when running with an user which does not have a password and usually not login.
+
+Download the [ps-tools ZIP file](https://docs.microsoft.com/en-us/sysinternals/downloads/psexec) and extract the `psexec.exe` binary to your server (e.g. `c:\psexec.exe`).
+
+The `psexec.exe` helper tool is used to configure the SSH connection for the system account later.
+It can be removed after the configuration is performed. But keeping the helper binary could be useful for troubleshooting.
+
+## Start cmd.exe for Windows System Account
 
 ```
 PsExec.exe -ids cmd.exe
@@ -305,18 +334,34 @@ whoami
 nt authority\system
 ```
 
+## Start cmd.exe for Windows Local Service Account
+
+```
+PsExec.exe -i -u "NT AUTHORITY\LOCAL SERVICE" cmd.exe
+```
+
+Verify the user is the local service account
+
+```
+whoami
+nt authority\local service
+
+```
+
 #### Create a new SSH key
 
 Create a ED25519 key to be used for connecting to the OpenSSH server.
-
-In case you want to use the same SSH key for multiple Domino servers,
-Copy the private key created previously to `C:\Windows\system32\config\systemprofile\.ssh\id_ed25519`
+Don't specify a password for the key.
 
 ```
 ssh-keygen -t ed25519
 ```
 
-Confirm the location of the key. The key should not have a passphrase.
+In case you want to use the same SSH key for multiple Domino servers,
+Copy the private key created to `C:\Windows\system32\config\systemprofile\.ssh\id_ed25519`
+
+
+Confirm the location of the key.
 
 The result looks like the following output:
 
@@ -353,3 +398,43 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEFUAH/EaO7yK0QrRRLiAeOzAm+4gZVBFqUL37V4T9TQ
 
 The public key is added in Veeam configuration step to the `notes` user on your Veeam server.  
 Once the public key is added to the `authorized_keys` file on the Veeam server, verify the connection from the Domino server to the Veeam server in the same context where the SSH key was created (usually the system account).
+
+
+
+## VSS Application aware restore operations with Local Service account
+
+Starting with Domino 14.0 the standard configuration uses the **Windows Local Service account** instead of the Windows Local System account.
+To merge changes into the snapshot Domino needs to mount the snapshot in the post snapshot phase.
+Mounting and unmounting disks or snapshots requires admin permissions.
+
+Beginning with Domino 14.5.1 Domino ships with a small helper service which only performs those mount operations.
+`nvssadmin_service.exe` is copied to the Domino binary directory by default.
+To register and start the service perform the following operation:
+
+```
+nvssadmin_service.exe -p d:\domino\data -i
+nvssadmin_service.exe -p d:\domino\data -s
+```
+
+Once installed the service is started automatically and needs no additional configuration.
+
+
+### Full command line reference
+
+```
+nvssadmin_service.exe
+
+Error: Insufficient arguments.2026-05-18 18:44:10  Usage: vssadmin_service -p <path> [command]
+2026-05-18 18:44:10   Example: vssadmin_service.exe -p "C:\Domino\Data" -status
+2026-05-18 18:44:10  Commands:
+2026-05-18 18:44:10    -i | -install     - Installs the service.
+2026-05-18 18:44:10    -u | -uninstall   - Uninstalls the service.
+2026-05-18 18:44:10    -s | -start       - Starts the installed service.
+2026-05-18 18:44:10    -x | -stop        - Stops the installed service.
+2026-05-18 18:44:10    -t | -status      - Status of the installed service.
+2026-05-18 18:44:10    -r | -restart     - Restart installed service.
+2026-05-18 18:44:10    -h | -?           - Displays this help message.
+2026-05-18 18:44:10  If no command is provided, the application assumes service mode and runs as a background service.
+```
+
+
