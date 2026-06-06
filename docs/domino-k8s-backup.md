@@ -22,7 +22,7 @@ Backup storage exists outside the cluster and operates independently.
 Domino is not the classical Kubernetes type of application.
 Usually containers are mainly compute focused and access databases in separate Kubernetes services or outside the cluster (e.g. PostgreSQL, Mongo DB, etc.).
 
-Because Domino is an application server and also the databases server, Domino requires much higher I/O rates and data transfers than classical K8 applications.
+Because Domino is an application server and also the databases server, Domino requires much higher I/O rates and data transfers than classical K8s applications.
 Therefore looking into Domino storage in a Kubernetes environment is important.
 
 ---
@@ -31,7 +31,7 @@ Therefore looking into Domino storage in a Kubernetes environment is important.
 
 Domino requires several categories of persistent storage.
 Each maps to a dedicated Persistent Volume Claim (PVC) backed by a standard CSI StorageClass with ReadWriteOnce (RWO) access.
-In contrast some other applications like ST need storage which can be read and written by multiple serves at the same time with ReadWriteMany (RWX) access.
+In contrast some other applications like HCL Samtime need storage which can be read and written by multiple serves at the same time with ReadWriteMany (RWX) access.
 
 
 ### Domino Data Directories
@@ -285,7 +285,7 @@ For a complete Domino restore, both the NSF backup and the DAOS backup must be c
 The Domino backup process handles this when using the built-in backup flow.
 When backing up DAOS independently, the backup schedule should be coordinated so that DAOS objects referenced by the NSF backup are present in the DAOS backup as well.
 
-**In practice, full DAOS restores are rare **
+**In practice, full DAOS restores are rare**
 
 DAOS includes a cluster repair function that detects and recovers missing or damaged objects by reconstructing them from other cluster members.
 Enabling cluster repair is strongly recommended — it handles the majority of object-level issues without requiring a backup restore at all.
