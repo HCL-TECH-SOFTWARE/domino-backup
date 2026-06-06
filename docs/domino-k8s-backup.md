@@ -1,8 +1,8 @@
 ---
 layout: default
-title: Domino on K8s: Storage
+title: Domino K8s Backup
 nav_order: 6
-description: Domino on K8s: Storage and Backup Architecture
+description: Domino on K8s Storage and Backup Architecture
 has_children: false
 ---
 
