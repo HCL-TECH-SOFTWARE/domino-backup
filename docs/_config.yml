@@ -6,7 +6,7 @@ description: HCL Domino Backup and Restore
 version: 1.0
 logo: "/assets/images/svg/Domino.svg"
 git_url: "https://github.com/HCL-TECH-SOFTWARE/domino-backup"
-# url: https://volt.domino-lab.net
+
 baseurl: "/domino-backup"
 permalink: pretty
 exclude:
@@ -96,7 +96,6 @@ color_scheme: nil
 # Google Analytics Tracking (optional)
 # e.g, UA-1234567-89
 #ga_tracking: UA-2709176-10
-ga_tracking_anonymize_ip: true # Use GDPR compliant Google Analytics settings (true/nil by default)
 
 plugins:
   - jekyll-seo-tag
