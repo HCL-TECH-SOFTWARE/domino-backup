@@ -1,7 +1,7 @@
 ---
 name: Need Help
 about: Ask for help / create a report to help us improve
-title: ''
+title: "[help wanted] "
 labels: help wanted
 assignees: ''
 
