@@ -6,7 +6,19 @@ description: "HCL Domino Introduction"
 permalink: /
 ---
 
-## Domino Backup and Restore
+<h1>Domino Backup and Restore</h1>
+
+<details close markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+___
+
+## Introduction
 
 Domino V12 introduces a Backup & Restore which is designed for easy integration with 3rd party backup solutions.
 
