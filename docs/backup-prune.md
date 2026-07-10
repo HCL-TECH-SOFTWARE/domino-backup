@@ -1,12 +1,23 @@
 ---
 layout: default
-title: Backup Retention explained
+title: Backup Retention
 nav_order: 7
 description: How Backup Retention works
 has_children: false
 ---
 
-# Backup Retention explained
+<h1>Backup Retention</h1>
+Describes the different methods and options for retention of a backup.
+
+<details close markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+___
 
 ## Introduction
 
