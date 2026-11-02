@@ -177,7 +177,7 @@ The scripts should be copied to the following directories. Ensure the files are 
 - Linux:
   `/opt/hcl/domino/backup/veeam`
 
-The DXL configuration file provided in this repository contains the corresponding configuration and can be imported directly into the `dominobackup.nsf` database.  
+The DXL configuration file provided in [this repository](https://github.com/HCL-TECH-SOFTWARE/domino-backup/tree/main/backup-providers/veeam) contains the corresponding configuration and can be imported directly into the `dominobackup.nsf` database.  
 For custom installation directories adjust the script directory in the configuraiton accordingly.
 
 The following scripts are used for integration:
